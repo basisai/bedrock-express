@@ -2,12 +2,11 @@ FROM python:3.8.3
 
 WORKDIR /app
 
-COPY requirements.txt .
+COPY app/requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
-COPY entrypoint.sh .
-COPY serve_http.py .
-COPY gunicorn_config.py .
+COPY app .
+
 # To be overriden by user
 COPY serve.py .
 
