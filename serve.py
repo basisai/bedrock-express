@@ -17,5 +17,5 @@ class Model:
         with open("/artefact/model.pkl", "rb") as f:
             self.model = pickle.load(f)
 
-    def predict(self, features: List[float]) -> float:
+    def predict(self, features: List[float]) -> List[List[float]]:
         return self.model.predict_proba([features])
