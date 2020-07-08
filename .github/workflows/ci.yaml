@@ -1,0 +1,30 @@
+name: Build and publish docker image on new tag or PR
+
+on:
+  push:
+    # Matching tags: 3.8.2-1.30.0, etc.
+    tags:
+      - "[0-9]+.[0-9]+.[0-9]+-[0-9]+.[0-9]+.[0-9]+"
+  pull_request:
+    types: [opened, ready_for_review, reopened]
+    paths-ignore:
+      - README.md
+      - .github/**
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+      - name: Build and push image
+        uses: docker/build-push-action@v1.1.0
+        env:
+          DOCKER_BUILDKIT: 1
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+          repository: basisai/python-alpine-grpcio
+          tag_with_ref: true
+          # Only push the image on new tag event
+          push: ${{ startsWith(github.ref, 'refs/tags/') }}
