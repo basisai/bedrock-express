@@ -12,9 +12,13 @@ fi
 
 EXTRA_OPTS=""
 if [ "$WORKERS" -gt 1 ]; then
-    export prometheus_multiproc_dir=/tmp
+    # Try not to override user defined variable
+    export prometheus_multiproc_dir="${prometheus_multiproc_dir:-/tmp}"
     EXTRA_OPTS="--config gunicorn_config.py"
 fi
+
+# Add Bedrock model server directory to path
+export PYTHONPATH="${PYTHONPATH:-}:/app"
 
 exec gunicorn serve_http:app \
     "$EXTRA_OPTS" \
