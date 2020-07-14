@@ -17,9 +17,13 @@ if [ "$WORKERS" -gt 1 ]; then
     EXTRA_OPTS="--config gunicorn_config.py"
 fi
 
+# Add Bedrock model server directory to path
+export PYTHONPATH="${PYTHONPATH:-}:/app"
+
 exec gunicorn serve_http:app \
     "$EXTRA_OPTS" \
-    --worker-class "$WORKER_CLASS" \
-    --workers "$WORKERS" \
-    --timeout "$TIMEOUT" \
+    --bind=":${BEDROCK_SERVER_PORT:-8080}" \
+    --worker-class=uvicorn.workers.UvicornWorker \
+    --workers="$WORKERS" \
+    --timeout=300 \
     --preload
