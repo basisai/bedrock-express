@@ -1,9 +1,9 @@
 # Bedrock Express
 
-Bedrock Express is a collection of standard model server images that are ready to be deployed on Bedrock. They enable users to deploy models without writing a full API server. Apart from reducing boilerplate, our standard images also meet the following requirements.
+Bedrock Express is a collection of standard model server images that are ready to be deployed on Bedrock. They enable users to deploy models without writing a full API server. Apart from reducing boilerplate, our standard images also meet the following requirements:
 
 - Each image is performance optimised for a specific server and ML framework.
-- All images expose the same environment variables and entrypoint script so users can switch from one image to another without changing `serve.py`.
+- All images expose the same environment variables and entrypoint script so users can switch to a new base image without changing `serve.py`.
 - All servers are instrumented with the latest [bdrk](https://pypi.org/project/bdrk/) client library for prediction logging and metrics.
 
 ## User Guide
@@ -35,7 +35,7 @@ def post_process(scores: List[List[float]]) -> List[List[float]]:
     return scores
 ```
 
-A complete example be be found in this repository's [serve.py](serve.py).
+For a complete example, you may refer to this repository's [serve.py](serve.py).
 
 ## Available Images
 
