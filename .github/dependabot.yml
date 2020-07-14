@@ -1,7 +1,7 @@
 version: 2
 updates:
   - package-ecosystem: pip
-    directory: "/"
+    directory: "/flask-gunicorn"
     schedule:
       interval: daily
       time: "00:00"
