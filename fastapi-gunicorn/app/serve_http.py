@@ -13,16 +13,15 @@ app = FastAPI()
 
 @app.middleware("http")
 async def init_background_threads(request: Request, call_next):
-    if not hasattr(request.state, "monitor"):
-        request.state.monitor = ModelMonitoringService()
+    if not hasattr(request.app, "monitor"):
+        request.app.monitor = ModelMonitoringService()
     response = await call_next(request)
     return response
 
 
 @app.post("/")
 async def predict(request: Request):
-    request_json = json.dumps(await request.json())
-    print(request_json)
+    request_json = await request.body()
     # User code to load features
     features = (
         serve.pre_process(request_json)
@@ -36,7 +35,7 @@ async def predict(request: Request):
     if hasattr(serve, "post_process"):
         score = serve.post_process(score)
 
-    pid = request.state.monitor.log_prediction(
+    pid = request.app.monitor.log_prediction(
         request_body=request_json, features=features, output=score,
     )
 
@@ -47,7 +46,7 @@ async def predict(request: Request):
 def get_metrics(request: Request):
     """Returns real time feature values recorded by Prometheus
     """
-    body, content_type = request.state.monitor.export_http(
+    body, content_type = request.app.monitor.export_http(
         params=dict(request.query_params), headers=request.headers,
     )
     return Response(body, media_type=content_type)
