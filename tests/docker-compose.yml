@@ -1,0 +1,36 @@
+version: "3"
+services:
+  test:
+    image: python:3.8.3
+    environment:
+      HOST: app
+    command:
+      - /bin/sh
+      - -c
+      - |
+        set -eu
+        # Wait until app is ready
+        until $$(curl -s $$HOST:8080/metrics > /dev/null); do
+          echo "$$HOST not ready"
+          sleep 5
+        done
+        /app/test-e2e.sh
+    volumes:
+      - ./test-e2e.sh:/app/test-e2e.sh
+  app:
+    build:
+      context: ..
+      args:
+        APP: ${APP:-fastapi-gunicorn}
+    command:
+      - /bin/sh
+      - -c
+      - |
+        set -eu
+        # Setup standard Bedrock directory layout
+        cd /model-server
+        pip install -r requirements.txt
+        /app/entrypoint.sh
+    volumes:
+      - ./${MODEL:-lightgbm}/artefact:/artefact
+      - ./${MODEL:-lightgbm}/model-server:/model-server
