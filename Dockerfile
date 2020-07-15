@@ -2,10 +2,11 @@ FROM python:3.8.3
 
 WORKDIR /app
 
-COPY app/requirements.txt .
+ARG APP=flask-gunicorn
+COPY $APP/requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
-COPY app .
+COPY $APP .
 
 # To be overriden by user
 COPY serve.py .
