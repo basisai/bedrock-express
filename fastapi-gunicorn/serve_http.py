@@ -39,7 +39,7 @@ async def predict(request: Request):
         request_body=request_json, features=features, output=score,
     )
 
-    return str({"result": score, "prediction_id": pid})
+    return {"result": score, "prediction_id": pid}
 
 
 @app.get("/metrics")
