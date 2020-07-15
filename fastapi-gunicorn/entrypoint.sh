@@ -26,3 +26,4 @@ exec gunicorn serve_http:app \
     --worker-class=uvicorn.workers.UvicornWorker \
     --workers="$WORKERS" \
     --timeout=300
+    --preload
