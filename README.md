@@ -46,3 +46,31 @@ Standard model server image using flask-gunicorn stack.
 ### fastapi-gunicorn
 
 Standard model server image using fastapi-gunicorn stack.
+
+## Developer Guide
+
+### Build
+
+The root [Dockerfile](Dockerfile) is shared by all Python based images. Simply provide the `APP` build arg using the current directory as your docker build command. For example,
+
+```bash
+# To build the flask-gunicorn stack
+docker build --build-arg APP=flask-gunicorn . -t flask-gunicorn
+
+# To build the fastapi-gunicorn stack
+docker build --build-arg APP=fastapi-gunicorn . -t fastapi-gunicorn
+```
+
+### Test
+
+To run tests for all server and framework flavours, simply run `./test.sh` from the repo directory.
+
+Individual images can be tested using `docker-compose` from the current directory by setting the `APP` and `MODEL` environment variables. For example,
+
+```bash
+# To test the flask-gunicorn stack with lightgbm model
+APP=flask-gunicorn MODEL=lightgbm docker-compose -f tests/docker-compose.yml up --build --abort-on-container-exit --always-recreate-deps
+
+# To test the fastapi-gunicorn stack with lightgbm model
+APP=fastapi-gunicorn MODEL=lightgbm docker-compose -f tests/docker-compose.yml up --build --abort-on-container-exit --always-recreate-deps
+```
