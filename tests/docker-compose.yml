@@ -31,7 +31,6 @@ services:
       - -c
       - |
         set -eu
-        wget -qO- "https://github.com/benfred/py-spy/releases/download/v0.3.2/py-spy-v0.3.2-x86_64-unknown-linux-musl.tar.gz" | tar xvz -C /usr/local/bin
         # Setup standard Bedrock directory layout
         cd /model-server
         pip install -r requirements.txt
@@ -39,5 +38,3 @@ services:
     volumes:
       - ./${MODEL:-lightgbm}/artefact:/artefact
       - ./${MODEL:-lightgbm}/model-server:/model-server
-    cap_add:
-      - SYS_PTRACE
