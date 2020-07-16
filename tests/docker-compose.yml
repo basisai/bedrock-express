@@ -9,14 +9,18 @@ services:
       - -c
       - |
         set -eu
+        cd /app
+        pip install --no-cache-dir -r requirements.txt
         # Wait until app is ready
         until $$(curl -s $$HOST:8080/metrics > /dev/null); do
           echo "$$HOST not ready"
           sleep 5
         done
-        /app/test-e2e.sh
+        # Also works with unittest: python -m unittest -v test_e2e.py
+        pytest -svvl --maxfail=2 --color=yes --log-level=DEBUG
     volumes:
-      - ./test-e2e.sh:/app/test-e2e.sh
+      - ./test_e2e.py:/app/test_e2e.py
+      - ./requirements.txt:/app/requirements.txt
   app:
     build:
       context: ..
@@ -27,6 +31,7 @@ services:
       - -c
       - |
         set -eu
+        wget -qO- "https://github.com/benfred/py-spy/releases/download/v0.3.2/py-spy-v0.3.2-x86_64-unknown-linux-musl.tar.gz" | tar xvz -C /usr/local/bin
         # Setup standard Bedrock directory layout
         cd /model-server
         pip install -r requirements.txt
@@ -34,3 +39,5 @@ services:
     volumes:
       - ./${MODEL:-lightgbm}/artefact:/artefact
       - ./${MODEL:-lightgbm}/model-server:/model-server
+    cap_add:
+      - SYS_PTRACE
