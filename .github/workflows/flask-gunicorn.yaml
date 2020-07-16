@@ -7,16 +7,22 @@ on:
       - "v[0-9]+.[0-9]+.[0-9]+"
   pull_request:
     types: [opened, ready_for_review, reopened]
-    paths-ignore:
-      - README.md
-      - .github/**
+    paths:
+      - tests/**
+      - flask-gunicorn/**
+      - Dockerfile
+      - serve.py
 
 jobs:
-  flask-gunicorn:
+  build:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
+      - name: Run tests
+        env:
+          APP: flask-gunicorn
+        run: docker-compose -f tests/docker-compose.yml up --build --abort-on-container-exit --always-recreate-deps
       - name: Build and push image
         uses: docker/build-push-action@v1.1.0
         env:
