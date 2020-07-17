@@ -1,3 +1,4 @@
+import json
 from importlib import import_module
 from os import getenv
 
@@ -16,12 +17,12 @@ async def predict(request: Request):
     if not hasattr(request.app, "monitor"):
         request.app.monitor = ModelMonitoringService()
 
-    request_json = await request.body()
+    request_data = await request.body()
     # User code to load features
     features = (
-        serve.pre_process(request_json)
+        serve.pre_process(request_data)
         if hasattr(serve, "pre_process")
-        else [float(x) for x in request_json]
+        else [float(x) for x in json.loads(request_data)]
     )
 
     # Compute the probability of the first class (True)
