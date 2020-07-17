@@ -1,0 +1,38 @@
+name: Build and publish docker image on new tag or PR
+
+on:
+  push:
+    # Matching tags: 3.8.2-1.30.0, etc.
+    tags:
+      - "v[0-9]+.[0-9]+.[0-9]+"
+  pull_request:
+    types: [opened, ready_for_review, reopened]
+    paths:
+      - tests/**
+      - fastapi-gunicorn/**
+      - Dockerfile
+      - serve.py
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+      - name: Run tests
+        env:
+          APP: fastapi-gunicorn
+        run: docker-compose -f tests/docker-compose.yml up --build --abort-on-container-exit --always-recreate-deps
+      - name: Build and push image
+        uses: docker/build-push-action@v1.1.0
+        env:
+          DOCKER_BUILDKIT: 1
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+          repository: basisai/fastapi-gunicorn
+          build_args: APP=fastapi-gunicorn
+          tags: fastapi-gunicorn
+          tag_with_ref: true
+          # Only push the image on new tag event
+          push: ${{ startsWith(github.ref, 'refs/tags/') }}

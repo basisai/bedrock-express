@@ -1,0 +1,40 @@
+version: "3"
+services:
+  test:
+    image: python:3.8.3
+    environment:
+      HOST: app
+    command:
+      - /bin/sh
+      - -c
+      - |
+        set -eu
+        cd /app
+        pip install --no-cache-dir -r requirements.txt
+        # Wait until app is ready
+        until $$(curl -s $$HOST:8080/metrics > /dev/null); do
+          echo "$$HOST not ready"
+          sleep 5
+        done
+        # Also works with unittest: python -m unittest -v test_e2e.py
+        pytest -svvl --maxfail=2 --color=yes --log-level=DEBUG
+    volumes:
+      - ./test_e2e.py:/app/test_e2e.py
+      - ./requirements.txt:/app/requirements.txt
+  app:
+    build:
+      context: ..
+      args:
+        APP: ${APP:-fastapi-gunicorn}
+    command:
+      - /bin/sh
+      - -c
+      - |
+        set -eu
+        # Setup standard Bedrock directory layout
+        cd /model-server
+        pip install -r requirements.txt
+        /app/entrypoint.sh
+    volumes:
+      - ./${MODEL:-lightgbm}/artefact:/artefact
+      - ./${MODEL:-lightgbm}/model-server:/model-server

@@ -1,6 +1,6 @@
+import json
 from importlib import import_module
 from os import getenv
-import json
 
 from bedrock_client.bedrock.metrics.service import ModelMonitoringService
 from fastapi import FastAPI, Request, Response
@@ -11,22 +11,18 @@ model = serve.Model()
 app = FastAPI()
 
 
-@app.middleware("http")
-async def init_background_threads(request: Request, call_next):
-    if not hasattr(request.app, "monitor"):
-        request.app.monitor = ModelMonitoringService()
-    response = await call_next(request)
-    return response
-
-
 @app.post("/")
 async def predict(request: Request):
-    request_json = await request.body()
+    # Using middleware causes tests to get stuck
+    if not hasattr(request.app, "monitor"):
+        request.app.monitor = ModelMonitoringService()
+
+    request_data = await request.body()
     # User code to load features
     features = (
-        serve.pre_process(request_json)
+        serve.pre_process(request_data)
         if hasattr(serve, "pre_process")
-        else [float(x) for x in request_json]
+        else [float(x) for x in json.loads(request_data)]
     )
 
     # Compute the probability of the first class (True)
@@ -43,11 +39,14 @@ async def predict(request: Request):
 
 
 @app.get("/metrics")
-def get_metrics(request: Request):
+async def get_metrics(request: Request):
     """Returns real time feature values recorded by Prometheus
     """
+    # Using middleware causes tests to get stuck
+    if not hasattr(request.app, "monitor"):
+        request.app.monitor = ModelMonitoringService()
+
     body, content_type = request.app.monitor.export_http(
         params=dict(request.query_params), headers=request.headers,
     )
     return Response(body, media_type=content_type)
-
