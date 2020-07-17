@@ -1,5 +1,4 @@
 from os import getenv
-from time import sleep
 from unittest import TestCase
 
 from requests import Session
@@ -37,8 +36,6 @@ class TestModelServer(TestCase):
                 self.assertIn("prediction_id", result)
                 self.assertEqual(len(result["prediction_id"].split("/")), 3)
                 self.assertEqual(result["result"], 0.9793770021409441)
-                # Add a delay because fastapi has problems handling it
-                sleep(0.1)
 
             # Verify that metrics sum up correctly
             resp = s.get(f"{self.url}/metrics")
