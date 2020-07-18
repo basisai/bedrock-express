@@ -32,7 +32,7 @@ async def predict(request: Request):
         score = serve.post_process(score)
 
     pid = request.app.monitor.log_prediction(
-        request_body=request_json, features=features, output=score,
+        request_body=request_data, features=features, output=score,
     )
 
     return {"result": score, "prediction_id": pid}
