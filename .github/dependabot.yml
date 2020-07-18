@@ -9,3 +9,21 @@ updates:
     allow:
       - dependency-type: direct
     rebase-strategy: disabled
+  - package-ecosystem: pip
+    directory: "/fastapi-gunicorn"
+    schedule:
+      interval: daily
+      time: "00:00"
+    open-pull-requests-limit: 5
+    allow:
+      - dependency-type: direct
+    rebase-strategy: disabled
+  - package-ecosystem: pip
+    directory: "/tests"
+    schedule:
+      interval: daily
+      time: "00:00"
+    open-pull-requests-limit: 5
+    allow:
+      - dependency-type: direct
+    rebase-strategy: disabled
