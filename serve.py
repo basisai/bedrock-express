@@ -1,9 +1,11 @@
 import json
 import pickle
-from typing import AnyStr, List, Union
+from typing import AnyStr, List, Mapping, Optional, Union
 
 
-def pre_process(http_body: AnyStr) -> List[float]:
+def pre_process(
+    http_body: AnyStr, files: Optional[Mapping[str, AnyStr]] = None
+) -> List[float]:
     array = json.loads(http_body)
     return [float(x) for x in array]
 
