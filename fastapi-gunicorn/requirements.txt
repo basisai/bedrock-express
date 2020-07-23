@@ -1,5 +1,5 @@
 bdrk[model-monitoring]==0.2.2
 uvicorn==0.11.6
 gunicorn==20.0.4
-fastapi==0.59.0
-python-multipart
+fastapi==0.60.1
+python-multipart==0.0.5
