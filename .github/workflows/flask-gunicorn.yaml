@@ -25,12 +25,7 @@ jobs:
           APP: flask-gunicorn
           COMPOSE_DOCKER_CLI_BUILD: 1
           DOCKER_BUILDKIT: 1
-        run: |
-          for model in "lightgbm" "torchvision"; do
-            MODEL=$model docker-compose -f tests/docker-compose.yml up --build \
-            --abort-on-container-exit \
-            --always-recreate-deps
-          done
+        run: ./test.sh
   release:
     runs-on: ubuntu-latest
     # Only push the image on new tag event

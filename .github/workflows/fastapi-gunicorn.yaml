@@ -25,10 +25,7 @@ jobs:
           APP: fastapi-gunicorn
           COMPOSE_DOCKER_CLI_BUILD: 1
           DOCKER_BUILDKIT: 1
-        run: |
-          docker-compose -f tests/docker-compose.yml up --build \
-          --abort-on-container-exit \
-          --always-recreate-deps
+        run: ./test.sh
   release:
     runs-on: ubuntu-latest
     # Only push the image on new tag event
