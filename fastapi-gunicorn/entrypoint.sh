@@ -25,5 +25,5 @@ exec gunicorn serve_http:app \
     --bind=":${BEDROCK_SERVER_PORT:-8080}" \
     --worker-class=uvicorn.workers.UvicornWorker \
     --workers="$WORKERS" \
-    --timeout=300
+    --timeout=300 \
     --preload

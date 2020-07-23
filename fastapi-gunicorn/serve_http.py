@@ -18,9 +18,12 @@ async def predict(request: Request):
         request.app.monitor = ModelMonitoringService()
 
     request_data = await request.body()
+    request_form = await request.form()
+    files = {k: v.file for k, v in request_form.items()}
+
     # User code to load features
     features = (
-        serve.pre_process(request_data)
+        serve.pre_process(request_data, files)
         if hasattr(serve, "pre_process")
         else [float(x) for x in json.loads(request_data)]
     )
