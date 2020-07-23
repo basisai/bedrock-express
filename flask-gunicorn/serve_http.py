@@ -22,7 +22,7 @@ def init_background_threads():
 def predict():
     # User code to load features
     features = (
-        serve.pre_process(request.data)
+        serve.pre_process(request.data, request.files)
         if hasattr(serve, "pre_process")
         else [float(x) for x in request.json]
     )
