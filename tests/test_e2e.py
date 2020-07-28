@@ -53,7 +53,7 @@ class TestModelServer(TestCase):
             self.assertEqual(after - before, 1)
 
     @skipIf(getenv("MODEL", None) not in MODELS["language"], "post body for language models")
-    def test_post(self):
+    def test_sentiment(self):
         with Session() as s:
             resp = s.get(f"{self.url}/metrics")
             resp.raise_for_status()
