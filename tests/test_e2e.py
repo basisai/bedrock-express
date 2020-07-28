@@ -6,6 +6,13 @@ from requests import Session
 from requests.exceptions import HTTPError
 
 
+MODELS = {
+    "image": ["torchvision", "tf-vision"],
+    "language": ["transformers", "tf-transformers"],
+    "churn": ["lightgbm"],
+}
+
+
 def get_inference_count(body: str, label: Optional[int] = None) -> int:
     if label is not None:
         start = body.index(f'inference_value_total{{bin="{label}.0"}}')
@@ -26,7 +33,7 @@ class TestModelServer(TestCase):
             resp = s.get(self.url)
             self.assertRaises(HTTPError, resp.raise_for_status)
 
-    @skipIf(getenv("MODEL", None) != "torchvision", "only test upload on vision models")
+    @skipIf(getenv("MODEL", None) not in MODELS["image"], "test upload on vision models")
     def test_file_upload(self):
         with Session() as s:
             resp = s.get(f"{self.url}/metrics")
@@ -45,7 +52,29 @@ class TestModelServer(TestCase):
             after = get_inference_count(resp.text, 208)
             self.assertEqual(after - before, 1)
 
-    @skipIf(getenv("MODEL", None) == "torchvision", "skip post body for vision models")
+    @skipIf(getenv("MODEL", None) not in MODELS["language"], "post body for language models")
+    def test_post(self):
+        with Session() as s:
+            resp = s.get(f"{self.url}/metrics")
+            resp.raise_for_status()
+            before = get_inference_count(resp.text)
+
+            for i in range(4):
+                resp = s.post(self.url, json={'query': 'Bedrock is amazing!'})
+                resp.raise_for_status()
+                result = resp.json()
+                self.assertIn("label", result)
+                self.assertIn("score", result)
+                self.assertEqual(result["label"], "POSITIVE")
+                self.assertEqual(result["score"], 0.9998825788497925)
+
+            # Verify that metrics sum up correctly
+            resp = s.get(f"{self.url}/metrics")
+            resp.raise_for_status()
+            after = get_inference_count(resp.text)
+            self.assertEqual(after - before, 4)
+
+    @skipIf(getenv("MODEL", None) not in MODELS["churn"], "post body for churn prediction models")
     def test_post(self):
         with Session() as s:
             resp = s.get(f"{self.url}/metrics")

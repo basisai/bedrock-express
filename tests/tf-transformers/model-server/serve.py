@@ -12,7 +12,7 @@ def pre_process(http_body, files):
 class Model:
     def __init__(self):
         # Pretrained pipeline for sentiment analysis
-        self.model = pipeline("sentiment-analysis")
+        self.model = pipeline("sentiment-analysis", framework="tf")
 
     def predict(self, features: str):
         # Returns both label and score
