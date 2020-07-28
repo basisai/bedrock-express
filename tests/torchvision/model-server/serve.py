@@ -14,7 +14,7 @@ def pre_process(http_body, files):
 
 class Model:
     def __init__(self):
-        self.device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
+        self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
         self.model = resnet50(pretrained=True)
         self.model.to(self.device)
         self.model.eval()
@@ -28,5 +28,5 @@ class Model:
         )
 
     def predict(self, features):
-        features_t = self.transform(features[0]).unsqueeze_(0)
+        features_t = self.transform(features[0]).unsqueeze_(0).to(self.device)
         return self.model(features_t).max(1)[1].item()
