@@ -1,3 +1,3 @@
-# tf-language
+# tf-transformers
 
-Python integration tests for language model from TensorflowHub.
+Python integration tests for transformers library with tensorflow backend.
