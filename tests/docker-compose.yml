@@ -1,7 +1,7 @@
 version: "3"
 services:
   test:
-    image: python:3.8.4
+    image: python:3.8.5
     environment:
       HOST: app
       MODEL: ${MODEL:-lightgbm}
