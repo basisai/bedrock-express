@@ -1,10 +1,14 @@
-FROM python:3.8.4
+FROM nvidia/cuda:10.0-cudnn7-runtime-ubuntu18.04
 
 WORKDIR /app
 
+RUN apt-get update && apt-get install -y \
+    python3-pip \
+    && rm -rf /var/lib/apt/lists/*
+
 ARG APP=flask-gunicorn
 COPY $APP/requirements.txt .
-RUN pip install --no-cache-dir -r requirements.txt
+RUN pip3 install --no-cache-dir -r requirements.txt
 
 COPY $APP .
 

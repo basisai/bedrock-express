@@ -1,7 +1,7 @@
 version: "3"
 services:
   test:
-    image: python:3.8.3
+    image: python:3.8.4
     environment:
       HOST: app
       MODEL: ${MODEL:-lightgbm}
@@ -11,7 +11,7 @@ services:
       - |
         set -eu
         cd /app
-        pip install --no-cache-dir -r requirements.txt
+        pip3 install --no-cache-dir -r requirements.txt
         # Wait until app is ready
         until $$(curl -s $$HOST:8080/metrics > /dev/null); do
           echo "$$HOST not ready"
@@ -35,7 +35,7 @@ services:
         set -eu
         # Setup standard Bedrock directory layout
         cd /model-server
-        pip install -r requirements.txt
+        pip3 install -r requirements.txt
         /app/entrypoint.sh
     volumes:
       - ./${MODEL:-lightgbm}/artefact:/artefact
