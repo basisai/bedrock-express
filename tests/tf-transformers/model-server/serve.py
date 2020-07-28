@@ -15,9 +15,12 @@ class Model:
         self.model = pipeline("sentiment-analysis", framework="tf")
 
     def predict(self, features: str):
-        # Returns both label and score
-        # e.g. {'label': 'POSITIVE', 'score': 0.93052536}
-        return self.model(features)[0]
+        # Original score is absolute value denoting confidence
+        # Multiple by -1 depending on whether POSITIVE or NEGATIVE
+        if self.model(features)[0]["label"] == "POSITIVE":
+            return self.model(features)[0]["score"]
+        else:
+            return -self.model(features)[0]["score"]
 
 
 if __name__ == "__main__":
