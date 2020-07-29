@@ -21,8 +21,3 @@ class Model:
             return self.model(features)[0]["score"]
         else:
             return -self.model(features)[0]["score"]
-
-
-if __name__ == "__main__":
-    model = Model()
-    print(model.predict("Bedrock is amazing!"))

@@ -30,8 +30,3 @@ class Model:
     def predict(self, features):
         features_t = self.transform(features[0]).unsqueeze_(0)
         return self.model(features_t).max(1)[1].item()
-
-
-if __name__ == "__main__":
-    model = Model()
-    print(model.predict([Image.open("../../208.jpg")]))

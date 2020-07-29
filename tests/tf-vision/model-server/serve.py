@@ -29,8 +29,3 @@ class Model:
         img = tf.image.convert_image_dtype(features[0], tf.float32)[tf.newaxis, ...]
         logits = self.model(img)
         return int(tf.argmax(logits[0]).numpy() - 1) # Labels are 1-indexed
-
-
-if __name__ == "__main__":
-    model = Model()
-    print(model.predict(np.array(Image.open("../../208.jpg"))))
