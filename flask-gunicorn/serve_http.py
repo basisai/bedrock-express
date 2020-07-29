@@ -5,6 +5,7 @@ from bedrock_client.bedrock.metrics.service import ModelMonitoringService
 from flask import Flask, Response, current_app, request
 
 serve = import_module(getenv("BEDROCK_SERVER", "serve"))
+model = serve.Model()
 
 app = Flask(__name__)
 
@@ -14,7 +15,6 @@ def init_background_threads():
     """Global objects with daemon threads will be stopped by gunicorn --preload flag.
     So instantiate the model monitoring service here instead.
     """
-    current_app.model = serve.Model()
     current_app.monitor = ModelMonitoringService()
 
 
@@ -28,7 +28,7 @@ def predict():
     )
 
     # Compute the probability of the first class (True)
-    score = current_app.model.predict(features)
+    score = model.predict(features)
 
     if hasattr(serve, "post_process"):
         score = serve.post_process(score)

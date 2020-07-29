@@ -25,5 +25,4 @@ exec gunicorn serve_http:app \
     --bind=":${BEDROCK_SERVER_PORT:-8080}" \
     --worker-class=gthread \
     --threads="$WORKERS" \
-    --timeout=300 \
-    --preload
+    --timeout=300
