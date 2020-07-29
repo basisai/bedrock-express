@@ -63,10 +63,10 @@ class TestModelServer(TestCase):
                 resp = s.post(self.url, json={'query': 'Bedrock is amazing!'})
                 resp.raise_for_status()
                 result = resp.json()
-                self.assertIn("label", result)
-                self.assertIn("score", result)
-                self.assertEqual(result["label"], "POSITIVE")
-                self.assertEqual(result["score"], 0.9998825788497925)
+                self.assertIn("result", result)
+                self.assertIn("prediction_id", result)
+                self.assertEqual(len(result["prediction_id"].split("/")), 3)
+                self.assertEqual(result["result"], 0.9998825788497925)
 
             # Verify that metrics sum up correctly
             resp = s.get(f"{self.url}/metrics")
