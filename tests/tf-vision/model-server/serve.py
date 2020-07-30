@@ -8,7 +8,7 @@ from PIL import Image
 
 
 def pre_process(http_body, files):
-    return [np.array(Image.open(files["image"]).convert("RGB").resize((299, 299)))]
+    return np.array(Image.open(files["image"]).convert("RGB").resize((299, 299)))
 
 
 class Model:
@@ -30,6 +30,6 @@ class Model:
         :return: Class label from ImageNet
         :rtype: int
         """
-        img = tf.image.convert_image_dtype(features[0], tf.float32)[tf.newaxis, ...]
+        img = tf.image.convert_image_dtype(features, tf.float32)[tf.newaxis, ...]
         logits = self.model(img)
         return int(tf.argmax(logits[0]).numpy() - 1)  # Labels are 1-indexed
