@@ -1,0 +1,5 @@
+# HELP inference_value_baseline_total Baseline inference values for test set
+# TYPE inference_value_baseline_total counter
+inference_value_baseline_total{bin="3.0"} 200.0
+inference_value_baseline_total{bin="104.0"} 100.0
+inference_value_baseline_total{bin="208.0"} 300.0
