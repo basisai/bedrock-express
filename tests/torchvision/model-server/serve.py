@@ -1,9 +1,8 @@
 """
 Script for serving.
 """
-from PIL import Image
-
 import torch
+from PIL import Image
 from torchvision.models import resnet50
 from torchvision.transforms import CenterCrop, Compose, Normalize, Resize, ToTensor
 

@@ -1,17 +1,15 @@
 import json
 import pickle
-from typing import AnyStr, List, Mapping, Optional, Union
+from typing import AnyStr, List, Mapping, Optional
 
 
-def pre_process(
-    http_body: AnyStr, files: Optional[Mapping[str, AnyStr]] = None
-) -> List[float]:
+def pre_process(http_body: AnyStr, files: Optional[Mapping[str, AnyStr]] = None) -> List[float]:
     array = json.loads(http_body)
     return [float(x) for x in array]
 
 
-def post_process(scores: List[List[float]]) -> Union[float, List[float]]:
-    return scores[:, 0].item()
+def post_process(scores: List[List[float]]) -> float:
+    return scores[0][0]
 
 
 class Model:
