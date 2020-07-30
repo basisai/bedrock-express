@@ -13,7 +13,7 @@ fi
 # Append new server images to this list
 for app in "${targets[@]}"; do
     # Append new ML framework to this list
-    for model in "lightgbm" "torchvision"; do
+    for model in "lightgbm" "torchvision" "tf-vision" "transformers" "tf-transformers"; do
         echo "Testing $app:$model..."
         export APP="$app"
         export MODEL="$model"
