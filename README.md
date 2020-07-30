@@ -26,16 +26,16 @@ Optionally, custom `pre_process` and `post_process` functions may be defined to 
 import json
 
 
-def pre_process(http_body: AnyStr) -> List[float]:
+def pre_process(http_body: AnyStr, files: Optional[Mapping[str, AnyStr]] = None) -> List[float]:
     array = json.loads(http_body)
     return [float(x) for x in array]
 
 
-def post_process(scores: List[List[float]]) -> List[List[float]]:
-    return scores
+def post_process(scores: List[List[float]]) -> float:
+    return scores[0][0]
 ```
 
-For a complete example, you may refer to this repository's [serve.py](serve.py).
+For a complete example, you may refer to this repository's [serve.py](tests/lightgbm/model-server/serve.py).
 
 ## Available Images
 

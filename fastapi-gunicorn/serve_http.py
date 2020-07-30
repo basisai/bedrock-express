@@ -6,6 +6,9 @@ from bedrock_client.bedrock.metrics.service import ModelMonitoringService
 from fastapi import FastAPI, Request, Response
 
 serve = import_module(getenv("BEDROCK_SERVER", "serve"))
+ModelClass = getattr(serve, "Model")
+pre_process = getattr(serve, "pre_process", lambda data, _: [float(x) for x in json.loads(data)])
+post_process = getattr(serve, "post_process", None)
 
 app = FastAPI()
 
@@ -14,7 +17,7 @@ app = FastAPI()
 async def predict(request: Request):
     # Using middleware causes tests to get stuck
     if not hasattr(request.app, "model"):
-        request.app.model = serve.Model()
+        request.app.model = ModelClass()
     if not hasattr(request.app, "monitor"):
         request.app.monitor = ModelMonitoringService()
 
@@ -23,21 +26,20 @@ async def predict(request: Request):
     files = {k: v.file for k, v in request_form.items()}
 
     # User code to load features
-    features = (
-        serve.pre_process(request_data, files)
-        if hasattr(serve, "pre_process")
-        else [float(x) for x in json.loads(request_data)]
-    )
+    features = pre_process(request_data, files)
 
     # Compute the probability of the first class (True)
     score = request.app.model.predict(features)
 
-    if hasattr(serve, "post_process"):
-        score = serve.post_process(score)
-
+    # Log before post_process to allow custom result type
     pid = request.app.monitor.log_prediction(
-        request_body=request_data, features=features, output=score,
+        request_body=request_data,
+        features=features if hasattr(features, "__iter__") else [features],
+        output=score[0] if isinstance(score, list) else score,
     )
+
+    if post_process:
+        score = post_process(score)
 
     return {"result": score, "prediction_id": pid}
 
@@ -48,7 +50,7 @@ async def get_metrics(request: Request):
     """
     # Using middleware causes tests to get stuck
     if not hasattr(request.app, "model"):
-        request.app.model = serve.Model()
+        request.app.model = ModelClass()
     if not hasattr(request.app, "monitor"):
         request.app.monitor = ModelMonitoringService()
 

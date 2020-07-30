@@ -2,6 +2,7 @@
 Script for serving.
 """
 import json
+
 from transformers import pipeline
 
 
