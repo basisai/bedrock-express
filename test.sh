@@ -1,6 +1,11 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
+# Fail fast on style check
+isort . --check --diff
+black . --check
+flake8
+
 exit_code=0
 
 # Defaults to all targets

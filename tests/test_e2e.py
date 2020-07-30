@@ -5,7 +5,6 @@ from unittest import TestCase, skipIf
 from requests import Session
 from requests.exceptions import HTTPError
 
-
 MODELS = {
     "image": ["torchvision", "tf-vision"],
     "language": ["transformers", "tf-transformers"],
@@ -60,7 +59,7 @@ class TestModelServer(TestCase):
             before = get_inference_count(resp.text)
 
             for i in range(4):
-                resp = s.post(self.url, json={'query': 'Bedrock is amazing!'})
+                resp = s.post(self.url, json={"query": "Bedrock is amazing!"})
                 resp.raise_for_status()
                 result = resp.json()
                 self.assertIn("result", result)
@@ -74,7 +73,9 @@ class TestModelServer(TestCase):
             after = get_inference_count(resp.text)
             self.assertEqual(after - before, 4)
 
-    @skipIf(getenv("MODEL", None) not in MODELS["churn"], "post body for churn prediction models")
+    @skipIf(
+        getenv("MODEL", None) not in MODELS["churn"], "post body for churn prediction models",
+    )
     def test_post(self):
         with Session() as s:
             resp = s.get(f"{self.url}/metrics")
