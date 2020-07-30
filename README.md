@@ -35,7 +35,12 @@ def post_process(scores: List[List[float]]) -> float:
     return scores[0][0]
 ```
 
-For a complete example, you may refer to this repository's [serve.py](tests/lightgbm/model-server/serve.py).
+For complete examples, you may refer to the serve.py files in [tests](tests) directory. We support the following model flavours.
+1. [LightGBM](tests/lightgbm/model-server/serve.py)
+2. [torchvision](tests/torchvision/model-server/serve.py)
+3. [pytorch-transformers](tests/transformers/model-server/serve.py)
+4. [tensorflow](tests/tf-vision/model-server/serve.py)
+5. [tensorflow-transformers](tests/tf-transformers/model-server/serve.py)
 
 ## Available Images
 
