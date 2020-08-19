@@ -22,8 +22,3 @@ class Model(BaseModel):
             return self.model(features)[0]["score"]
         else:
             return -self.model(features)[0]["score"]
-
-
-if __name__ == "__main__":
-    m = Model()
-    m.validate(sample='{"query": "Good job"}')

@@ -29,9 +29,3 @@ class Model(BaseModel):
     def predict(self, features):
         features_t = self.transform(features).unsqueeze_(0).to(self.device)
         return self.model(features_t).max(1)[1].item()
-
-
-if __name__ == "__main__":
-    m = Model()
-    with open("./tests/208.jpg", "rb") as f:
-        m.validate(http_body=None, files={"image": f})
