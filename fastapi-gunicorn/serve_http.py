@@ -1,14 +1,18 @@
-import json
 from importlib import import_module
 from os import getenv
 
 from bedrock_client.bedrock.metrics.service import ModelMonitoringService
+from bedrock_client.bedrock.model import BaseModel
 from fastapi import FastAPI, Request, Response
 
 serve = import_module(getenv("BEDROCK_SERVER", "serve"))
-ModelClass = getattr(serve, "Model")
-pre_process = getattr(serve, "pre_process", lambda data, _: [float(x) for x in json.loads(data)])
-post_process = getattr(serve, "post_process", None)
+ModelClass = None
+for key in dir(serve):
+    model = getattr(serve, key)
+    if isinstance(model, type) and issubclass(model, BaseModel):
+        ModelClass = model
+if not ModelClass:
+    raise NotImplementedError("Model not found")
 
 app = FastAPI()
 
@@ -26,7 +30,7 @@ async def predict(request: Request):
     files = {k: v.file for k, v in request_form.items()}
 
     # User code to load features
-    features = pre_process(request_data, files)
+    features = request.app.model.pre_process(request_data, files)
 
     # Compute the probability of the first class (True)
     score = request.app.model.predict(features)
@@ -38,9 +42,7 @@ async def predict(request: Request):
         output=score[0] if isinstance(score, list) else score,
     )
 
-    if post_process:
-        score = post_process(score)
-
+    score = request.app.model.post_process(score)
     return {"result": score, "prediction_id": pid}
 
 
