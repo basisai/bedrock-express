@@ -12,7 +12,7 @@ class Model(BaseModel):
         # Pretrained pipeline for sentiment analysis
         self.model = pipeline("sentiment-analysis")
 
-    def pre_process(self, http_body):
+    def pre_process(self, http_body, files):
         return json.loads(http_body)["query"]
 
     def predict(self, features: str):
