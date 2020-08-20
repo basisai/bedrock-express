@@ -9,7 +9,7 @@ from flask import Flask, Response, current_app, request
 serve = import_module(getenv("BEDROCK_SERVER", "serve"))
 for key in dir(serve):
     model = getattr(serve, key)
-    if isinstance(model, type) and issubclass(model, BaseModel):
+    if isinstance(model, type) and model != BaseModel and issubclass(model, BaseModel):
         ModelClass = model
         break
 else:
