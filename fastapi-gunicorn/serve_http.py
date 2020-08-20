@@ -1,60 +1,73 @@
 from importlib import import_module
 from os import getenv
 
+from bedrock_client.bedrock.metrics.registry import is_single_value
 from bedrock_client.bedrock.metrics.service import ModelMonitoringService
 from bedrock_client.bedrock.model import BaseModel
 from fastapi import FastAPI, Request, Response
 
 serve = import_module(getenv("BEDROCK_SERVER", "serve"))
-ModelClass = None
 for key in dir(serve):
     model = getattr(serve, key)
     if isinstance(model, type) and issubclass(model, BaseModel):
         ModelClass = model
-if not ModelClass:
-    raise NotImplementedError("Model not found")
+        break
+else:
+    raise NotImplementedError("Model class not found")
 
 app = FastAPI()
 
 
-@app.post("/")
-async def predict(request: Request):
-    # Using middleware causes tests to get stuck
+# Using middleware decorator causes tests to get stuck
+async def middleware(request: Request):
     if not hasattr(request.app, "model"):
         request.app.model = ModelClass()
     if not hasattr(request.app, "monitor"):
         request.app.monitor = ModelMonitoringService()
+
+
+@app.post("/")
+async def predict(request: Request):
+    await middleware(request)
 
     request_data = await request.body()
     request_form = await request.form()
     files = {k: v.file for k, v in request_form.items()}
 
     # User code to load features
-    features = request.app.model.pre_process(request_data, files)
+    features = request.app.model.pre_process(http_body=request_data, files=files)
 
     # Compute the probability of the first class (True)
-    score = request.app.model.predict(features)
+    score = request.app.model.predict(features=features)
 
     # Log before post_process to allow custom result type
-    pid = request.app.monitor.log_prediction(
-        request_body=request_data,
-        features=features if hasattr(features, "__iter__") else [features],
-        output=score[0] if isinstance(score, list) else score,
-    )
+    if isinstance(score, dict):
+        pid = request.app.monitor.log_class_probability(
+            request_body=request.data, features=features, output=score
+        )
+    elif is_single_value(score):
+        pid = request.app.monitor.log_prediction(
+            request_body=request.data, features=features, output=score
+        )
+    elif all(is_single_value(s) for s in score):
+        samples = (
+            # Get the index of top score
+            [max(enumerate(score), key=lambda p: p[1])[0]]
+            if request.app.model.config.log_top_score
+            else None
+        )
+        pid = request.app.monitor.log_sample_probability(
+            request_body=request.data, features=features, output=score, samples=samples
+        )
 
-    score = request.app.model.post_process(score)
-    return {"result": score, "prediction_id": pid}
+    return request.app.model.post_process(score=score, prediction_id=pid)
 
 
 @app.get("/metrics")
 async def get_metrics(request: Request):
     """Returns real time feature values recorded by Prometheus
     """
-    # Using middleware causes tests to get stuck
-    if not hasattr(request.app, "model"):
-        request.app.model = ModelClass()
-    if not hasattr(request.app, "monitor"):
-        request.app.monitor = ModelMonitoringService()
+    await middleware(request)
 
     body, content_type = request.app.monitor.export_http(
         params=dict(request.query_params), headers=request.headers,

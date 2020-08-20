@@ -1,3 +1,3 @@
-bdrk[model-monitoring]==0.3.2.dev1
+bdrk[model-monitoring]==0.3.2.dev2
 flask==1.1.2
 gunicorn==20.0.4
