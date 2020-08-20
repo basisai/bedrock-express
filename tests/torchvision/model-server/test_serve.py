@@ -4,7 +4,7 @@ from serve import Model
 
 
 class TestModelServer(TestCase):
-    def test_validate():
+    def test_validate(self):
         m = Model()
         with open("./tests/208.jpg", "rb") as f:
             m.validate(files={"image": f})
