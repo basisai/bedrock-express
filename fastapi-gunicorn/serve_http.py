@@ -43,11 +43,11 @@ async def predict(request: Request):
     # Log before post_process to allow custom result type
     if isinstance(score, dict):
         pid = request.app.monitor.log_class_probability(
-            request_body=request.data, features=features, output=score
+            request_body=request_data, features=features, output=score
         )
     elif is_single_value(score):
         pid = request.app.monitor.log_prediction(
-            request_body=request.data, features=features, output=score
+            request_body=request_data, features=features, output=score
         )
     elif all(is_single_value(s) for s in score):
         samples = (
