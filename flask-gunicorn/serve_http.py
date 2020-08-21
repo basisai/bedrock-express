@@ -1,6 +1,10 @@
+from dataclasses import replace
+from datetime import datetime
 from importlib import import_module
 from os import getenv
+from uuid import UUID
 
+from bedrock_client.bedrock.metrics.context import PredictionContext
 from bedrock_client.bedrock.metrics.registry import is_single_value
 from bedrock_client.bedrock.metrics.service import ModelMonitoringService
 from bedrock_client.bedrock.model import BaseModel
@@ -36,24 +40,38 @@ def predict():
     score = current_app.model.predict(features=features)
 
     # Log before post_process to allow custom result type
+    pid = current_app.monitor.log_prediction(
+        request_body=request.data, features=features, output=score
+    )
+
+    # Track multiple sample metrics separately
+    server_id, timestamp, entity_id = pid.split("/")
+    pred = PredictionContext(
+        # Dummy values will be replaced later
+        request_body="",
+        features=[],
+        output=0,
+        entity_id=UUID(entity_id),
+        server_id=server_id,
+        created_at=datetime.fromisoformat(timestamp),
+    )
     if isinstance(score, dict):
-        pid = current_app.monitor.log_class_probability(
-            request_body=request.data, features=features, output=score
+        # TODO: separate label for each class?
+        predicted_class, _ = max(score.items(), key=lambda p: p[1])
+        current_app.monitor._live_metrics.observe(
+            replace(pred, features=features, output=predicted_class)
         )
-    elif is_single_value(score):
-        pid = current_app.monitor.log_prediction(
-            request_body=request.data, features=features, output=score
-        )
-    elif all(is_single_value(s) for s in score):
+    elif not is_single_value(score) and all(is_single_value(s) for s in score):
         samples = (
             # Get the index of top score
             [max(enumerate(score), key=lambda p: p[1])[0]]
             if current_app.model.config.log_top_score
-            else None
+            else [i for i in range(len(score))]
         )
-        pid = current_app.monitor.log_sample_probability(
-            request_body=request.data, features=features, output=score, samples=samples
-        )
+        for i in samples:
+            current_app.monitor._live_metrics.observe(
+                replace(pred, features=features[i], output=score[i])
+            )
 
     return current_app.model.post_process(score=score, prediction_id=pid)
 
