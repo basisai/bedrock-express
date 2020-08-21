@@ -43,7 +43,7 @@ class TestModelServer(TestCase):
             resp.raise_for_status()
             result = resp.json()
             self.assertIn("result", result)
-            self.assertEqual(result["result"], 208)
+            self.assertEqual(result["result"], [208])
 
             # Verify that metrics sum up correctly
             resp = s.get(f"{self.url}/metrics")
@@ -65,7 +65,7 @@ class TestModelServer(TestCase):
                 self.assertIn("result", result)
                 self.assertIn("prediction_id", result)
                 self.assertEqual(len(result["prediction_id"].split("/")), 3)
-                self.assertEqual(result["result"], 0.9998825788497925)
+                self.assertEqual(result["result"], [{"POSITIVE": 0.9998825788497925}])
 
             # Verify that metrics sum up correctly
             resp = s.get(f"{self.url}/metrics")
@@ -83,13 +83,13 @@ class TestModelServer(TestCase):
             before = get_inference_count(resp.text)
 
             for i in range(4):
-                resp = s.post(self.url, json=[i for i in range(66)])
+                resp = s.post(self.url, json=[[i for i in range(66)]])
                 resp.raise_for_status()
                 result = resp.json()
                 self.assertIn("result", result)
                 self.assertIn("prediction_id", result)
                 self.assertEqual(len(result["prediction_id"].split("/")), 3)
-                self.assertEqual(result["result"], 0.9793770021409441)
+                self.assertEqual(result["result"], [0.9793770021409441])
 
             # Verify that metrics sum up correctly
             resp = s.get(f"{self.url}/metrics")

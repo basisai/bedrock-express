@@ -60,20 +60,19 @@ async def predict(request: Request):
         server_id=server_id,
         created_at=datetime.fromisoformat(timestamp),
     )
-    if isinstance(score, dict):
-        # TODO: separate label for each class?
-        predicted_class, _ = max(score.items(), key=lambda p: p[1])
-        request.app.monitor._live_metrics.observe(
-            replace(pred, features=features, output=predicted_class)
-        )
-    elif not is_single_value(score) and all(is_single_value(s) for s in score):
-        samples = (
-            # Get the index of top score
-            [max(enumerate(score), key=lambda p: p[1])[0]]
-            if request.app.model.config.log_top_score
-            else [i for i in range(len(score))]
-        )
-        for i in samples:
+    samples = (
+        # Get the index of top score
+        [max(enumerate(score), key=lambda p: p[1])[0]]
+        if request.app.model.config.log_top_score
+        else [i for i in range(len(score))]
+    )
+    for i in samples:
+        if isinstance(score[i], dict):
+            label, _ = max(score[i].items(), key=lambda p: p[1])
+            request.app.monitor._live_metrics.observe(
+                replace(pred, features=features[i], output=label)
+            )
+        elif not is_single_value(features[i]):
             request.app.monitor._live_metrics.observe(
                 replace(pred, features=features[i], output=score[i])
             )

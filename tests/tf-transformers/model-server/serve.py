@@ -17,8 +17,4 @@ class Model(BaseModel):
 
     def predict(self, features: str):
         # Original score is absolute value denoting confidence
-        # Multiple by -1 depending on whether POSITIVE or NEGATIVE
-        if self.model(features)[0]["label"] == "POSITIVE":
-            return self.model(features)[0]["score"]
-        else:
-            return -self.model(features)[0]["score"]
+        return [{sample["label"]: sample["score"]} for sample in self.model(features)]

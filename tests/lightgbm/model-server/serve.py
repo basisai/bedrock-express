@@ -9,5 +9,5 @@ class Model(BaseModel):
         with open(path, "rb") as f:
             self.model = pickle.load(f)
 
-    def predict(self, features: List[float]) -> float:
-        return self.model.predict_proba([features])[:, 0].item()
+    def predict(self, features: List[List[float]]) -> List[float]:
+        return self.model.predict_proba(features)[:, 0].tolist()
