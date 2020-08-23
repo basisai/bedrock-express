@@ -9,7 +9,7 @@ soccer = b'\x89PNG\r\n\x1a\n\x00\x00\x00\rIHDR\x00\x00\x00\x1c\x00\x00\x00\x1c\x
 class TestModelServer(TestCase):
     def test_validate(self):
         m = Model()
-        result = m.validate(http_body=None, files={"image": BytesIO(soccer)}, skip_preprocess=True)
+        result = m.validate(files={"image": BytesIO(soccer)}, skip_preprocess=True)
         self.assertIn("result", result)
         self.assertIn("prediction_id", result)
         self.assertEqual(len(result["prediction_id"].split("/")), 3)

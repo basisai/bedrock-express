@@ -23,7 +23,7 @@ class Model(BaseModel):
             ]
         )
 
-    def pre_process(self, http_body, files):
+    def pre_process(self, files, http_body=None):
         img = Image.open(files["image"]).convert("RGB")
         features = self.transform(img).unsqueeze_(0).to(self.device)
         return features

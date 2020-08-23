@@ -19,7 +19,7 @@ class Model(BaseModel):
         )
         self.model.build([None, 299, 299, 3])
 
-    def pre_process(self, http_body, files):
+    def pre_process(self, files, http_body=None):
         features = np.array(Image.open(files["image"]).convert("RGB").resize((299, 299)))
         return tf.image.convert_image_dtype(features, tf.float32)[tf.newaxis, ...]
 
