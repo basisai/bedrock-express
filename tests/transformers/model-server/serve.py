@@ -13,7 +13,7 @@ class Model(BaseModel):
         self.model = pipeline("sentiment-analysis")
 
     def pre_process(self, http_body, files=None):
-        return json.loads(http_body)["query"]
+        return [json.loads(http_body)["query"]]
 
     def predict(self, features: str):
         # Original score is absolute value denoting confidence
