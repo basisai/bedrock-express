@@ -43,6 +43,8 @@ class TestModelServer(TestCase):
             resp.raise_for_status()
             result = resp.json()
             self.assertIn("result", result)
+            self.assertIn("prediction_id", result)
+            self.assertEqual(len(result["prediction_id"].split("/")), 3)
             self.assertEqual(result["result"], [208])
 
             # Verify that metrics sum up correctly

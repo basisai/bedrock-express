@@ -24,10 +24,9 @@ class Model(BaseModel):
         )
 
     def pre_process(self, http_body, files):
-        img = Image.open(files["image"])
+        img = Image.open(files["image"]).convert("RGB")
         features = self.transform(img).unsqueeze_(0).to(self.device)
         return features
 
     def predict(self, features):
-        print(features)
         return self.model(features).max(1)[1].tolist()
