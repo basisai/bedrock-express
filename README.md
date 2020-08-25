@@ -50,7 +50,7 @@ class BaseModel:
 
 ### Config
 
-If you have exported the training distribution of your model to `/artefact/histogram.prom`, Bedrock Express will automatically instrument your server for tracking its production distribution. You may control whether to track all predictions or only those with top scores by overriding `self.config` attribute.
+If you have exported the feature distribution that your model is trained on to `/artefact/histogram.prom`, Bedrock Express will automatically instrument your server for tracking its production distribution. You may control whether to track all predictions or only those with top scores by overriding `self.config` attribute.
 
 ```python
 from bedrock_client.bedrock.model.base import BaseModel, ExpressConfig
