@@ -25,6 +25,8 @@ class Model(BaseModel):
         return self.model.predict_proba(features)[:, 0].tolist()
 ```
 
+To verify that it works locally, you may call `model.validate()` after instantiation.
+
 ### Pre-process
 
 Optionally, custom `pre_process` and `post_process` functions may be defined to transform the HTTP requests and responses for your model. By default, the following definitions are used.
