@@ -1,1 +1,2 @@
+bdrk[model-monitoring]==0.3.2
 lightgbm==2.3.1

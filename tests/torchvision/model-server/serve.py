@@ -2,16 +2,13 @@
 Script for serving.
 """
 import torch
+from bedrock_client.bedrock.model import BaseModel
 from PIL import Image
 from torchvision.models import resnet50
 from torchvision.transforms import CenterCrop, Compose, Normalize, Resize, ToTensor
 
 
-def pre_process(http_body, files):
-    return [Image.open(files["image"])]
-
-
-class Model:
+class Model(BaseModel):
     def __init__(self):
         self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
         self.model = resnet50(pretrained=True)
@@ -26,6 +23,10 @@ class Model:
             ]
         )
 
+    def pre_process(self, files, http_body=None):
+        img = Image.open(files["image"]).convert("RGB")
+        features = self.transform(img).unsqueeze_(0).to(self.device)
+        return features
+
     def predict(self, features):
-        features_t = self.transform(features[0]).unsqueeze_(0).to(self.device)
-        return self.model(features_t).max(1)[1].item()
+        return self.model(features).max(1)[1].tolist()

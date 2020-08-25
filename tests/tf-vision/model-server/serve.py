@@ -4,14 +4,11 @@ Script for serving.
 import numpy as np
 import tensorflow as tf
 import tensorflow_hub as hub
+from bedrock_client.bedrock.model import BaseModel
 from PIL import Image
 
 
-def pre_process(http_body, files):
-    return np.array(Image.open(files["image"]).convert("RGB").resize((299, 299)))
-
-
-class Model:
+class Model(BaseModel):
     def __init__(self):
         self.model = tf.keras.Sequential(
             [
@@ -22,6 +19,10 @@ class Model:
         )
         self.model.build([None, 299, 299, 3])
 
+    def pre_process(self, files, http_body=None):
+        features = np.array(Image.open(files["image"]).convert("RGB").resize((299, 299)))
+        return tf.image.convert_image_dtype(features, tf.float32)[tf.newaxis, ...]
+
     def predict(self, features):
         """Makes an inference using the model.
 
@@ -30,6 +31,6 @@ class Model:
         :return: Class label from ImageNet
         :rtype: int
         """
-        img = tf.image.convert_image_dtype(features, tf.float32)[tf.newaxis, ...]
-        logits = self.model(img)
-        return int(tf.argmax(logits[0]).numpy() - 1)  # Labels are 1-indexed
+        logits = self.model(features)
+        # Labels are 1-indexed
+        return [int(tf.argmax(sample).numpy() - 1) for sample in logits]
