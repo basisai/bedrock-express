@@ -1,4 +1,4 @@
-bdrk[model-monitoring]==0.3.2.dev6
+bdrk[model-monitoring]==0.3.2
 uvicorn==0.11.8
 gunicorn==20.0.4
 fastapi==0.61.0
