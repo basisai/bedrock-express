@@ -8,17 +8,26 @@ Bedrock Express is a collection of standard model server images that are ready t
 
 ## User Guide
 
-Users will need to define a `Model` class in `serve.py` to tell the server how to load and call your model. For example,
+### Server
+
+Users will need to define a model class in `serve.py` to tell the server how to load and call your model. Our [bdrk](https://pypi.org/project/bdrk/) library provides the `BaseModel` that you should inherit from. For example,
 
 ```python
-class Model:
+from bedrock_client.bedrock.model import BaseModel
+
+
+class Model(BaseModel):
     def __init__(self):
         with open("/artefact/model.pkl", "rb") as f:
             self.model = pickle.load(f)
 
-    def predict(self, features: List[float]) -> List[List[float]]:
-        return self.model.predict_proba([features])
+    def predict(self, features: List[List[float]]) -> List[float]:
+        return self.model.predict_proba(features)[:, 0].tolist()
 ```
+
+To verify that it works locally, you may call `model.validate()` after instantiating the model class.
+
+### Pre-process & Post-process
 
 Optionally, custom `pre_process` and `post_process` functions may be defined to transform the HTTP requests and responses for your model. By default, the following definitions are used.
 
@@ -26,16 +35,37 @@ Optionally, custom `pre_process` and `post_process` functions may be defined to 
 import json
 
 
-def pre_process(http_body: AnyStr, files: Optional[Mapping[str, AnyStr]] = None) -> List[float]:
-    array = json.loads(http_body)
-    return [float(x) for x in array]
+class BaseModel:
+    def pre_process(
+        self, http_body: AnyStr, files: Optional[Mapping[str, BinaryIO]] = None
+    ) -> List[List[float]]:
+        samples = json.loads(http_body)
+        return [[float(x) for x in s] for s in samples]
+
+    def post_process(
+        self, score: Union[List[float], List[Mapping[str, float]]], prediction_id: str
+    ) -> Union[AnyStr, Mapping[str, Any]]:
+        return {"result": score, "prediction_id": prediction_id}
+```
+
+### Config
+
+If you have exported the feature distribution that your model is trained on to `/artefact/histogram.prom`, Bedrock Express will automatically instrument your server for tracking its production distribution. You may control whether to track all predictions or only those with top scores by overriding `self.config` attribute.
+
+```python
+from bedrock_client.bedrock.model.base import BaseModel, ExpressConfig
 
 
-def post_process(scores: List[List[float]]) -> float:
-    return scores[0][0]
+class Model(BaseModel):
+    def __init__(self):
+        self.config = ExpressConfig(log_top_score=False)
+
+    def predict(self, features):
+        return self.model.predict_proba(features)[:, 0].tolist()
 ```
 
 For complete examples, you may refer to the serve.py files in [tests](tests) directory. We support the following model flavours.
+
 1. [LightGBM](tests/lightgbm/model-server/serve.py)
 2. [torchvision](tests/torchvision/model-server/serve.py)
 3. [pytorch-transformers](tests/transformers/model-server/serve.py)
@@ -46,11 +76,15 @@ For complete examples, you may refer to the serve.py files in [tests](tests) dir
 
 ### flask-gunicorn
 
-Standard model server image using flask-gunicorn stack.
+Standard model server image using flask-gunicorn stack. Requires
+
+- Python 3.6+
 
 ### fastapi-gunicorn
 
-Standard model server image using fastapi-gunicorn stack.
+Standard model server image using fastapi-gunicorn stack. Requires
+
+- Python 3.6+
 
 ## Developer Guide
 
