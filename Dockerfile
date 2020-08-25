@@ -1,4 +1,5 @@
-FROM python:3.8.4
+ARG  PYTHON_VERSION=3.8.5
+FROM python:${PYTHON_VERSION}
 
 WORKDIR /app
 

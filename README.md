@@ -76,11 +76,15 @@ For complete examples, you may refer to the serve.py files in [tests](tests) dir
 
 ### flask-gunicorn
 
-Standard model server image using flask-gunicorn stack.
+Standard model server image using flask-gunicorn stack. Requires
+
+- Python 3.6+
 
 ### fastapi-gunicorn
 
-Standard model server image using fastapi-gunicorn stack.
+Standard model server image using fastapi-gunicorn stack. Requires
+
+- Python 3.6+
 
 ## Developer Guide
 
