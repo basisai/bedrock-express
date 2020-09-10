@@ -12,9 +12,9 @@ from flask import Flask, Response, current_app, request
 
 try:
     serve = import_module(getenv("BEDROCK_SERVER", "serve"))
-except ModuleNotFoundError:
-    print("Using default model in /app")
-    serve = import_module("model")
+except ModuleNotFoundError as exc:
+    print(f"Loading example_serve.py since BEDROCK_SERVER is undefined: {exc}")
+    serve = import_module("example_serve")
 
 for key in dir(serve):
     model = getattr(serve, key)

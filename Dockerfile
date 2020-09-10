@@ -14,6 +14,6 @@ ENV BEDROCK_SERVER serve
 ENV WORKERS 2
 
 # Add default model file for convenience
-COPY tests/lightgbm/model-server/serve.py model.py
+COPY tests/lightgbm/model-server/serve.py example_serve.py
 
 CMD ["./entrypoint.sh"]
