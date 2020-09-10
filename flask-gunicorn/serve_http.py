@@ -10,7 +10,12 @@ from bedrock_client.bedrock.metrics.service import ModelMonitoringService
 from bedrock_client.bedrock.model import BaseModel
 from flask import Flask, Response, current_app, request
 
-serve = import_module(getenv("BEDROCK_SERVER", "serve"))
+try:
+    serve = import_module(getenv("BEDROCK_SERVER", "serve"))
+except ModuleNotFoundError:
+    print("Using default model in /app")
+    serve = import_module("model")
+
 for key in dir(serve):
     model = getattr(serve, key)
     if isinstance(model, type) and model != BaseModel and issubclass(model, BaseModel):

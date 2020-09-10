@@ -48,6 +48,8 @@ class BaseModel:
         return {"result": score, "prediction_id": prediction_id}
 ```
 
+The `prediction_id` in the response body allows you to look up a specific request at a later time.
+
 ### Config
 
 If you have exported the feature distribution that your model is trained on to `/artefact/histogram.prom`, Bedrock Express will automatically instrument your server for tracking its production distribution. You may control whether to track all predictions or only those with top scores by overriding `self.config` attribute.
