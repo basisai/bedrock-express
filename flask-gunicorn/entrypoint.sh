@@ -26,4 +26,9 @@ exec gunicorn serve_http:app \
     --worker-class=gthread \
     --workers="$WORKERS" \
     --timeout=300 \
-    --preload
+    --preload \
+    --access-logfile - \
+    --error-logfile - \
+    --log-level "${LOG_LEVEL}" \
+    --log-config gunicorn_logging.conf \
+    --capture-output

@@ -1,6 +1,7 @@
 from dataclasses import replace
 from datetime import datetime
 from importlib import import_module
+from logging import getLogger
 from os import getenv
 from uuid import UUID
 
@@ -10,10 +11,11 @@ from bedrock_client.bedrock.metrics.service import ModelMonitoringService
 from bedrock_client.bedrock.model import BaseModel
 from flask import Flask, Response, current_app, request
 
+logger = getLogger()
 try:
     serve = import_module(getenv("BEDROCK_SERVER", "serve"))
 except ModuleNotFoundError as exc:
-    print(f"Loading example_serve.py since BEDROCK_SERVER is undefined: {exc}")
+    logger.info(f"Loading example_serve.py since BEDROCK_SERVER is not found: {exc}")
     serve = import_module("example_serve")
 
 for key in dir(serve):
