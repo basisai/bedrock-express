@@ -30,5 +30,5 @@ exec gunicorn serve_http:app \
     --access-logfile - \
     --error-logfile - \
     --log-level "${LOG_LEVEL}" \
-    --log-config gunicorn_logging.conf \
+    --log-config /app/gunicorn_logging.conf \
     --capture-output
