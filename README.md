@@ -6,13 +6,16 @@ Bedrock Express is a collection of standard model server images that are ready t
 - All images expose the same environment variables and entrypoint script so users can switch to a new base image without changing `serve.py`.
 - All servers are instrumented with the latest [bdrk](https://pypi.org/project/bdrk/) client library for prediction logging and metrics.
 
-## User Guide
+## Quick Start
 
-### Server
+### Creating a Model Server
 
-Users will need to define a model class in `serve.py` to tell the server how to load and call your model. Our [bdrk](https://pypi.org/project/bdrk/) library provides the `BaseModel` that you should inherit from. For example,
+Users will need to define a model class in `serve.py` file to tell the server how to load and call your model for inference. Our [bdrk](https://pypi.org/project/bdrk/) library provides the `BaseModel` that you should inherit from. For example,
 
 ```python
+import pickle
+from typing import List
+
 from bedrock_client.bedrock.model import BaseModel
 
 
@@ -23,16 +26,58 @@ class Model(BaseModel):
 
     def predict(self, features: List[List[float]]) -> List[float]:
         return self.model.predict_proba(features)[:, 0].tolist()
+
+
+if __name__ == "__main__":
+    Model().validate("[[1]]")
 ```
 
 To verify that it works locally, you may call `model.validate()` after instantiating the model class.
 
+### Deploying on Bedrock
+
+To deploy your model on Bedrock, you will need to create a `bedrock.hcl` file with the following configuration.
+
+```hcl
+// Refer to https://docs.basis-ai.com/getting-started/writing-files/bedrock.hcl for more details.
+version = "1.0"
+
+serve {
+    image = "basisai/express-flask:v0.0.3"
+    install = [
+        "pip install -r requirements.txt",
+    ]
+    script = [
+        {sh = [
+            "/app/entrypoint.sh"
+        ]}
+    ]
+
+    parameters {
+        BEDROCK_SERVER = "serve"
+    }
+}
+```
+
+The [basisai/express-flask](https://hub.docker.com/repository/docker/basisai/express-flask) image is hosted on docker hub and should be accessible from your workload environment on Bedrock.
+
+The `install` stanza specifies how to install additional dependencies that your server might need, eg. torchvision or tensorflow. Most valid bash commands will work.
+
+The `script` stanza specifies an entrypoint for your server. This file is predefined in all Bedrock Express images and users generally don't need to change it.
+
+The `parameters` stanza allows you to define additional environment variables to be injected into the server containers. You may override the special `BEDROCK_SERVER` environment variable to tell the entrypoint to load a different module than the default `serve.py`.
+
+For a complete serving example, you may refer to our modified [churn prediction](https://github.com/basisai/bedrock-express-churn-prediction) repository.
+
+## User Guide
+
 ### Pre-process & Post-process
 
-Optionally, custom `pre_process` and `post_process` functions may be defined to transform the HTTP requests and responses for your model. By default, the following definitions are used.
+Optionally, custom `pre_process` and `post_process` functions may be defined to transform the HTTP requests and responses for your model. By default, the following definitions are used by `BaseModel` class.
 
 ```python
 import json
+from typing import Any, AnyStr, BinaryIO List, Mapping, Optional, Union
 
 
 class BaseModel:
@@ -50,29 +95,34 @@ class BaseModel:
 
 The `prediction_id` in the response body allows you to look up a specific request at a later time.
 
-### Config
+### Configuration
 
-If you have exported the feature distribution that your model is trained on to `/artefact/histogram.prom`, Bedrock Express will automatically instrument your server for tracking its production distribution. You may control whether to track all predictions or only those with top scores by overriding `self.config` attribute.
+If you have exported the feature distribution that your model is trained on to `/artefact/histogram.prom`, Bedrock Express will automatically instrument your server for tracking its production distribution. You may control whether to track all predictions or only those with top scores by overriding `self.config` attribute. For example,
 
 ```python
+import pickle
+
 from bedrock_client.bedrock.model.base import BaseModel, ExpressConfig
 
 
 class Model(BaseModel):
     def __init__(self):
         self.config = ExpressConfig(log_top_score=False)
-
-    def predict(self, features):
-        return self.model.predict_proba(features)[:, 0].tolist()
+        with open("/artefact/model.pkl", "rb") as f:
+            self.model = pickle.load(f)
 ```
 
-For complete examples, you may refer to the serve.py files in [tests](tests) directory. We support the following model flavours.
+## Supported Model Flavours
+
+We currently support the following model flavours.
 
 1. [LightGBM](tests/lightgbm/model-server/serve.py)
 2. [torchvision](tests/torchvision/model-server/serve.py)
 3. [pytorch-transformers](tests/transformers/model-server/serve.py)
 4. [tensorflow](tests/tf-vision/model-server/serve.py)
 5. [tensorflow-transformers](tests/tf-transformers/model-server/serve.py)
+
+For complete examples, you may refer to individual `serve.py` files in [tests](tests) directory.
 
 ## Available Images
 
