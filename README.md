@@ -63,7 +63,7 @@ serve {
 }
 ```
 
-The [basisai/express-flask](https://hub.docker.com/r/basisai/express-flask) image is hosted on docker hub and should be accessible from your workload environment on Bedrock.
+The [basisai/express-flask](https://hub.docker.com/repository/docker/basisai/express-flask) image is hosted on docker hub and should be accessible from your workload environment on Bedrock. You may change it to any other supported image, such as [basisai/express-fastapi](https://hub.docker.com/repository/docker/basisai/express-fastapi).
 
 The `install` stanza specifies how to install additional dependencies that your server might need, eg. torchvision or tensorflow. Most valid bash commands will work.
 
@@ -130,13 +130,13 @@ If you have requests for supporting a specific flavour, please file an issue on 
 
 ## Available Images
 
-### flask-gunicorn
+### [flask-gunicorn](https://hub.docker.com/repository/docker/basisai/express-flask)
 
 Standard model server image using flask-gunicorn stack. Requires
 
 - Python 3.6+
 
-### fastapi-gunicorn
+### [fastapi-gunicorn](https://hub.docker.com/repository/docker/basisai/express-fastapi)
 
 Standard model server image using fastapi-gunicorn stack. Requires
 
