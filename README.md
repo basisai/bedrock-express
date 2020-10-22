@@ -71,8 +71,6 @@ The `script` stanza specifies an entrypoint for your server. This file is predef
 
 The `parameters` stanza allows you to define additional environment variables to be injected into the server containers. You may override the special `BEDROCK_SERVER` environment variable to tell the entrypoint to load a different module than the default `serve.py`.
 
-For a complete serving example, you may refer to our modified [churn prediction](https://github.com/basisai/bedrock-express-churn-prediction) repository.
-
 ## User Guide
 
 ### Pre-process & Post-process
