@@ -8,9 +8,9 @@ Bedrock Express is a collection of standard model server images that are ready t
 
 ## Quick Start
 
-### Server
+### Creating a Model Server
 
-Users will need to define a model class in `serve.py` to tell the server how to load and call your model. Our [bdrk](https://pypi.org/project/bdrk/) library provides the `BaseModel` that you should inherit from. For example,
+Users will need to define a model class in `serve.py` to tell the server how to load and call your model on each inference request. Our [bdrk](https://pypi.org/project/bdrk/) library provides the `BaseModel` that you should inherit from. For example,
 
 ```python
 import pickle
@@ -26,11 +26,15 @@ class Model(BaseModel):
 
     def predict(self, features: List[List[float]]) -> List[float]:
         return self.model.predict_proba(features)[:, 0].tolist()
+
+
+if __name__ == "__main__":
+    Model().validate(str([[1]]))
 ```
 
 To verify that it works locally, you may call `model.validate()` after instantiating the model class.
 
-### Running on Bedrock
+### Deploying on Bedrock
 
 To deploy your model on Bedrock, you will need to create a `bedrock.hcl` file with the following configuration.
 
@@ -57,7 +61,7 @@ serve {
 
 The [basisai/express-flask](https://hub.docker.com/repository/docker/basisai/express-flask) image is hosted on docker hub and should be accessible from your workload environment on Bedrock.
 
-The `install` stanza specifies how to install additional dependencies that your server might need, eg. torchvision. Most valid bash commands will work.
+The `install` stanza specifies how to install additional dependencies that your server might need, eg. torchvision or tensorflow. Most valid bash commands will work.
 
 The `script` stanza specifies an entrypoint for your server. This file is predefined in all Bedrock Express images and users generally don't need to change it.
 
