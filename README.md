@@ -6,6 +6,10 @@ Bedrock Express is a collection of standard model server images that are ready t
 - All images expose the same environment variables and entrypoint script so users can switch to a new base image without changing `serve.py`.
 - All servers are instrumented with the latest [bdrk](https://pypi.org/project/bdrk/) client library for prediction logging and metrics.
 
+## Churn prediction example
+
+See [churn prediction express](https://github.com/basisai/bedrock-express-churn-prediction) for a complete example
+
 ## Quick Start
 
 ### Creating a Model Server
