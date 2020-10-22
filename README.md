@@ -130,13 +130,13 @@ If you have requests for supporting a specific flavour, please file an issue on 
 
 ## Available Images
 
-### [flask-gunicorn](https://hub.docker.com/repository/docker/basisai/express-flask)
+### [express-flask](https://hub.docker.com/repository/docker/basisai/express-flask)
 
 Standard model server image using [flask-gunicorn](flask-gunicorn) stack. Requires
 
 - Python 3.6+
 
-### [fastapi-gunicorn](https://hub.docker.com/repository/docker/basisai/express-fastapi)
+### [express-fastapi](https://hub.docker.com/repository/docker/basisai/express-fastapi)
 
 Standard model server image using [fastapi-gunicorn](fastapi-gunicorn) stack. Requires
 
