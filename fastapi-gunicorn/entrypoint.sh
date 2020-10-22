@@ -23,7 +23,7 @@ export PYTHONPATH="${PYTHONPATH:-}:/app"
 exec gunicorn serve_http:app \
     "$EXTRA_OPTS" \
     --bind=":${BEDROCK_SERVER_PORT:-8080}" \
-    --worker-class=uvicorn.workers.UvicornWorker \
+    --worker-class=uvicorn.workers.UvicornH11Worker \
     --workers="$WORKERS" \
     --timeout=300 \
     --preload \
