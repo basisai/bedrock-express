@@ -10,7 +10,7 @@ Bedrock Express is a collection of standard model server images that are ready t
 
 ### Creating a Model Server
 
-Users will need to define a model class in `serve.py` to tell the server how to load and call your model on each inference request. Our [bdrk](https://pypi.org/project/bdrk/) library provides the `BaseModel` that you should inherit from. For example,
+Users will need to define a model class in `serve.py` file to tell the server how to load and call your model for inference. Our [bdrk](https://pypi.org/project/bdrk/) library provides the `BaseModel` that you should inherit from. For example,
 
 ```python
 import pickle
@@ -29,7 +29,7 @@ class Model(BaseModel):
 
 
 if __name__ == "__main__":
-    Model().validate(str([[1]]))
+    Model().validate("[[1]]")
 ```
 
 To verify that it works locally, you may call `model.validate()` after instantiating the model class.
@@ -67,7 +67,7 @@ The `script` stanza specifies an entrypoint for your server. This file is predef
 
 The `parameters` stanza allows you to define additional environment variables to be injected into the server containers. You may override the special `BEDROCK_SERVER` environment variable to tell the entrypoint to load a different module than the default `serve.py`.
 
-For a complete serving example, you may refer to our modified (churn prediction)[https://github.com/basisai/bedrock-express-churn-prediction] repository.
+For a complete serving example, you may refer to our modified [churn prediction](https://github.com/basisai/bedrock-express-churn-prediction) repository.
 
 ## User Guide
 
@@ -112,7 +112,7 @@ class Model(BaseModel):
             self.model = pickle.load(f)
 ```
 
-## Supported model flavours
+## Supported Model Flavours
 
 We currently support the following model flavours.
 
@@ -122,7 +122,7 @@ We currently support the following model flavours.
 4. [tensorflow](tests/tf-vision/model-server/serve.py)
 5. [tensorflow-transformers](tests/tf-transformers/model-server/serve.py)
 
-For complete examples, you may refer to the serve.py files in [tests](tests) directory.
+For complete examples, you may refer to individual `serve.py` files in [tests](tests) directory.
 
 ## Available Images
 
