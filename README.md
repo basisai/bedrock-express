@@ -118,7 +118,7 @@ class Model(BaseModel):
 
 ## Supported Model Flavours
 
-We currently support the following model flavours.
+Bedrock Express supports ML models trained using most mainstream frameworks, such as sklearn, pytorch, and tensorflow. More specifically, we run e2e tests on the following model flavours before each change.
 
 1. [LightGBM](tests/lightgbm/model-server/serve.py)
 2. [torchvision](tests/torchvision/model-server/serve.py)
@@ -126,7 +126,9 @@ We currently support the following model flavours.
 4. [tensorflow](tests/tf-vision/model-server/serve.py)
 5. [tensorflow-transformers](tests/tf-transformers/model-server/serve.py)
 
-For complete examples, you may refer to individual `serve.py` files in [tests](tests) directory.
+For complete examples on creating model servers for these flavours, you may refer to individual `serve.py` files in [tests](tests) directory.
+
+If you have requests for supporting a specific flavour, please file an issue on this repository.
 
 ## Available Images
 
