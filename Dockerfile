@@ -24,5 +24,9 @@ COPY $APP .
 ENV BEDROCK_SERVER_PORT 8080
 ENV BEDROCK_SERVER serve
 ENV WORKERS 2
+ENV LOG_LEVEL INFO
+
+# Add default model file for convenience
+COPY tests/lightgbm/model-server/serve.py example_serve.py
 
 CMD ["./entrypoint.sh"]
