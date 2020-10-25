@@ -1,5 +1,6 @@
 # fastapi-gunicorn
-Model server image using fastapi-uvicorn-gunicorn stack
+
+Model server image using fastapi-uvicorn-gunicorn stack.
 
 ## Note
 
