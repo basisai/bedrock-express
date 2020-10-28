@@ -1,3 +1,3 @@
-# fastapi-gunicorn
+# flask-gunicorn
 
-Model server image using flask-gunicorn stack
+Model server image using flask-gthread-gunicorn stack.
