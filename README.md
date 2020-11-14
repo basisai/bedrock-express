@@ -140,6 +140,8 @@ Standard model server image using [flask-gunicorn](flask-gunicorn) stack. Requir
 
 - Python 3.6+
 
+For [flask-gunicorn-gpu](flast-gunicorn-gpu), use the `xxxxx-gpu` image tag. For example, `v0.0.3-gpu`.
+
 ### [express-fastapi](https://hub.docker.com/repository/docker/basisai/express-fastapi)
 
 Standard model server image using [fastapi-gunicorn](fastapi-gunicorn) stack. Requires
