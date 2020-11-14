@@ -14,7 +14,11 @@ See [bedrock-express-churn-prediction](https://github.com/basisai/bedrock-expres
 
 ### Creating a Model Server
 
-Users will need to define a model class in `serve.py` file to tell the server how to load and call your model for inference. Our [bdrk](https://pypi.org/project/bdrk/) library provides the `BaseModel` that you should inherit from. For example,
+Users will need to define a model class in `serve.py` file to tell the server how to load and call your model for inference. Our [bdrk](https://pypi.org/project/bdrk/) library provides the `BaseModel` that you should inherit from.
+
+Refer to [this doc](BaseModel.md) for the specification of the `BaseModel` class to have a better idea on how you can implement a subclass.
+
+The following example implements the `Model` subclass,
 
 ```python
 import pickle
