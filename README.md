@@ -134,7 +134,7 @@ If you have requests for supporting a specific flavour, please file an issue on 
 
 ## Available Images
 
-### [express-flask](https://hub.docker.com/repository/docker/basisai/express-flask)
+### [express-flask](https://hub.docker.com/r/basisai/express-flask)
 
 Standard model server image using [flask-gunicorn](flask-gunicorn) stack. Requires
 
@@ -142,7 +142,7 @@ Standard model server image using [flask-gunicorn](flask-gunicorn) stack. Requir
 
 For [flask-gunicorn-gpu](flast-gunicorn-gpu), use the `xxxxx-gpu` image tag. For example, `v0.0.3-gpu`.
 
-### [express-fastapi](https://hub.docker.com/repository/docker/basisai/express-fastapi)
+### [express-fastapi](https://hub.docker.com/r/basisai/express-fastapi)
 
 Standard model server image using [fastapi-gunicorn](fastapi-gunicorn) stack. Requires
 
