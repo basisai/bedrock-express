@@ -14,7 +14,11 @@ See [bedrock-express-churn-prediction](https://github.com/basisai/bedrock-expres
 
 ### Creating a Model Server
 
-Users will need to define a model class in `serve.py` file to tell the server how to load and call your model for inference. Our [bdrk](https://pypi.org/project/bdrk/) library provides the `BaseModel` that you should inherit from. For example,
+Users will need to define a model class in `serve.py` file to tell the server how to load and call your model for inference. Our [bdrk](https://pypi.org/project/bdrk/) library provides the `BaseModel` that you should inherit from.
+
+Refer to [this doc](docs/BaseModel.md) for the specification of the `BaseModel` class to have a better idea on how you can implement a subclass.
+
+The following example implements the `Model` subclass,
 
 ```python
 import pickle
@@ -135,6 +139,8 @@ If you have requests for supporting a specific flavour, please file an issue on 
 Standard model server image using [flask-gunicorn](flask-gunicorn) stack. Requires
 
 - Python 3.6+
+
+For [flask-gunicorn-gpu](flast-gunicorn-gpu), use the `xxxxx-gpu` image tag. For example, `v0.0.3-gpu`.
 
 ### [express-fastapi](https://hub.docker.com/repository/docker/basisai/express-fastapi)
 
