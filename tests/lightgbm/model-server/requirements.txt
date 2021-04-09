@@ -1,2 +1,2 @@
-bdrk[model-monitoring]==0.6.0
+boxkite==0.0.3
 lightgbm==2.3.1
