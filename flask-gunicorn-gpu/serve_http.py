@@ -1,3 +1,4 @@
+import json
 from dataclasses import replace
 from datetime import datetime
 from importlib import import_module
@@ -10,6 +11,7 @@ from boxkite.monitoring.context import PredictionContext
 from boxkite.monitoring.registry import is_single_value
 from boxkite.monitoring.service import ModelMonitoringService
 from flask import Flask, Response, current_app, request
+from werkzeug.exceptions import HTTPException
 
 logger = getLogger()
 try:
