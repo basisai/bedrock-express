@@ -88,17 +88,6 @@ async def predict(request: Request):
     return request.app.model.post_process(score=score, prediction_id=pid)
 
 
-@app.post("/explain/", defaults={"target": None})
-@app.post("/explain/<target>")
-def explain(target):
-    if not callable(getattr(current_app.model, "explain", None)):
-        return "Model does not implement 'explain' method", 501
-    features = current_app.model.pre_process(
-        http_body=request.data, files=request.files
-    )
-    return current_app.model.explain(features=features, target=target)[0]
-
-
 @app.get("/metrics")
 async def get_metrics(request: Request):
     """Returns real time feature values recorded by Prometheus
