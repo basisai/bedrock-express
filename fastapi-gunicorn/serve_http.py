@@ -5,10 +5,10 @@ from logging import getLogger
 from os import getenv
 from uuid import UUID
 
-from bedrock_client.bedrock.metrics.context import PredictionContext
-from bedrock_client.bedrock.metrics.registry import is_single_value
-from bedrock_client.bedrock.metrics.service import ModelMonitoringService
 from bedrock_client.bedrock.model import BaseModel
+from boxkite.monitoring.context import PredictionContext
+from boxkite.monitoring.registry import is_single_value
+from boxkite.monitoring.service import ModelMonitoringService
 from fastapi import FastAPI, Request, Response
 
 logger = getLogger()
@@ -38,6 +38,7 @@ async def middleware(request: Request):
 
 
 @app.post("/")
+@app.post("/predict")
 async def predict(request: Request):
     await middleware(request)
 
@@ -85,6 +86,17 @@ async def predict(request: Request):
             )
 
     return request.app.model.post_process(score=score, prediction_id=pid)
+
+
+@app.post("/explain/", defaults={"target": None})
+@app.post("/explain/<target>")
+def explain(target):
+    if not callable(getattr(current_app.model, "explain", None)):
+        return "Model does not implement 'explain' method", 501
+    features = current_app.model.pre_process(
+        http_body=request.data, files=request.files
+    )
+    return current_app.model.explain(features=features, target=target)[0]
 
 
 @app.get("/metrics")
