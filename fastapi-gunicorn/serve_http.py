@@ -9,7 +9,8 @@ from bedrock_client.bedrock.model import BaseModel
 from boxkite.monitoring.context import PredictionContext
 from boxkite.monitoring.registry import is_single_value
 from boxkite.monitoring.service import ModelMonitoringService
-from fastapi import FastAPI, JSONResponse, Request, Response
+from fastapi import FastAPI, Request, Response
+from fastapi.responses import JSONResponse
 
 logger = getLogger()
 try:
