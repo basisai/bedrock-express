@@ -9,7 +9,7 @@ from bedrock_client.bedrock.model import BaseModel
 from boxkite.monitoring.context import PredictionContext
 from boxkite.monitoring.registry import is_single_value
 from boxkite.monitoring.service import ModelMonitoringService
-from fastapi import FastAPI, Request, Response
+from fastapi import FastAPI, JSONResponse, Request, Response
 
 logger = getLogger()
 try:
@@ -88,13 +88,25 @@ async def predict(request: Request):
     return request.app.model.post_process(score=score, prediction_id=pid)
 
 
+@app.post("/explain/", defaults={"target": None})
+@app.post("/explain/<target>")
+def explain(target):
+    return JSONResponse(
+        content={
+            "type": "InternalServerError",
+            "reason": "Model does not implement 'explain' method",
+        },
+        status_code=501,
+    )
+
+
 @app.get("/metrics")
 async def get_metrics(request: Request):
-    """Returns real time feature values recorded by Prometheus
-    """
+    """Returns real time feature values recorded by Prometheus"""
     await middleware(request)
 
     body, content_type = request.app.monitor.export_http(
-        params=dict(request.query_params), headers=request.headers,
+        params=dict(request.query_params),
+        headers=request.headers,
     )
     return Response(body, media_type=content_type)

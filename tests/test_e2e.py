@@ -53,6 +53,12 @@ class TestModelServer(TestCase):
             after = get_inference_count(resp.text, 208)
             self.assertEqual(after - before, 1)
 
+    @skipIf(getenv("MODEL", None) not in MODELS["image"], "test explainer on vision models")
+    def test_explain(self):
+        with Session() as s:
+            resp = s.post(f"{self.url}/explain")
+            assert resp.status_code == 501
+
     @skipIf(getenv("MODEL", None) not in MODELS["language"], "post body for language models")
     def test_sentiment(self):
         with Session() as s:
