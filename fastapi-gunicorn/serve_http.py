@@ -2,6 +2,7 @@ from dataclasses import replace
 from datetime import datetime
 from importlib import import_module
 from logging import getLogger
+from typing import Optional
 from os import getenv
 from uuid import UUID
 
@@ -89,9 +90,9 @@ async def predict(request: Request):
     return request.app.model.post_process(score=score, prediction_id=pid)
 
 
-@app.post("/explain/", defaults={"target": None})
+@app.post("/explain/")
 @app.post("/explain/<target>")
-def explain(target):
+def explain(target: Optional[str] = None):
     return JSONResponse(
         content={
             "type": "InternalServerError",
