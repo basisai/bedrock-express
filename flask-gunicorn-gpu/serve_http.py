@@ -1,3 +1,4 @@
+import json
 from dataclasses import replace
 from datetime import datetime
 from importlib import import_module
@@ -5,11 +6,12 @@ from logging import getLogger
 from os import getenv
 from uuid import UUID
 
-from bedrock_client.bedrock.metrics.context import PredictionContext
-from bedrock_client.bedrock.metrics.registry import is_single_value
-from bedrock_client.bedrock.metrics.service import ModelMonitoringService
 from bedrock_client.bedrock.model import BaseModel
+from boxkite.monitoring.context import PredictionContext
+from boxkite.monitoring.registry import is_single_value
+from boxkite.monitoring.service import ModelMonitoringService
 from flask import Flask, Response, current_app, request
+from werkzeug.exceptions import HTTPException
 
 logger = getLogger()
 try:
@@ -38,7 +40,19 @@ def init_background_threads():
     current_app.monitor = ModelMonitoringService()
 
 
+@app.errorhandler(HTTPException)
+def handle_exception(e):
+    """Return JSON instead of HTML for HTTP errors."""
+    # Start with the correct headers and status code from the error
+    response = e.get_response()
+    # Replace the http body with JSON
+    response.data = json.dumps({"type": e.name, "reason": e.description})
+    response.content_type = "application/json"
+    return response
+
+
 @app.route("/", methods=["POST"])
+@app.route("/predict", methods=["POST"])
 def predict():
     # User code to load features
     features = current_app.model.pre_process(http_body=request.data, files=request.files)
@@ -80,6 +94,17 @@ def predict():
             )
 
     return current_app.model.post_process(score=score, prediction_id=pid)
+
+
+@app.route("/explain/", defaults={"target": None}, methods=["POST"])
+@app.route("/explain/<target>", methods=["POST"])
+def explain(target):
+    if not callable(getattr(current_app.model, "explain", None)):
+        return "Model does not implement 'explain' method", 501
+    features = current_app.model.pre_process(
+        http_body=request.data, files=request.files
+    )
+    return current_app.model.explain(features=features, target=target)[0]
 
 
 @app.route("/metrics", methods=["GET"])

@@ -2,14 +2,16 @@ from dataclasses import replace
 from datetime import datetime
 from importlib import import_module
 from logging import getLogger
+from typing import Optional
 from os import getenv
 from uuid import UUID
 
-from bedrock_client.bedrock.metrics.context import PredictionContext
-from bedrock_client.bedrock.metrics.registry import is_single_value
-from bedrock_client.bedrock.metrics.service import ModelMonitoringService
 from bedrock_client.bedrock.model import BaseModel
+from boxkite.monitoring.context import PredictionContext
+from boxkite.monitoring.registry import is_single_value
+from boxkite.monitoring.service import ModelMonitoringService
 from fastapi import FastAPI, Request, Response
+from fastapi.responses import JSONResponse
 
 logger = getLogger()
 try:
@@ -38,6 +40,7 @@ async def middleware(request: Request):
 
 
 @app.post("/")
+@app.post("/predict")
 async def predict(request: Request):
     await middleware(request)
 
@@ -87,13 +90,25 @@ async def predict(request: Request):
     return request.app.model.post_process(score=score, prediction_id=pid)
 
 
+@app.post("/explain/")
+@app.post("/explain/<target>")
+def explain(target: Optional[str] = None):
+    return JSONResponse(
+        content={
+            "type": "InternalServerError",
+            "reason": "Model does not implement 'explain' method",
+        },
+        status_code=501,
+    )
+
+
 @app.get("/metrics")
 async def get_metrics(request: Request):
-    """Returns real time feature values recorded by Prometheus
-    """
+    """Returns real time feature values recorded by Prometheus"""
     await middleware(request)
 
     body, content_type = request.app.monitor.export_http(
-        params=dict(request.query_params), headers=request.headers,
+        params=dict(request.query_params),
+        headers=request.headers,
     )
     return Response(body, media_type=content_type)
