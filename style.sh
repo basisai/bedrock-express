@@ -18,10 +18,10 @@ while getopts 'cf:' flag; do
 done
 
 if [ -z "$check" ]; then
-    isort "$files" --check --diff
+    isort --profile black "$files" --check-only --diff
     black "$files" --check
 else
-    isort "$files"
+    isort --profile black "$files"
     black "$files"
 fi
 

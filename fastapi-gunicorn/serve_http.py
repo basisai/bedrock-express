@@ -2,8 +2,8 @@ from dataclasses import replace
 from datetime import datetime
 from importlib import import_module
 from logging import getLogger
-from typing import Optional
 from os import getenv
+from typing import Optional
 from uuid import UUID
 
 from bedrock_client.bedrock.model import BaseModel
@@ -108,7 +108,6 @@ async def get_metrics(request: Request):
     await middleware(request)
 
     body, content_type = request.app.monitor.export_http(
-        params=dict(request.query_params),
-        headers=request.headers,
+        params=dict(request.query_params), headers=request.headers
     )
     return Response(body, media_type=content_type)
