@@ -81,9 +81,7 @@ class TestModelServer(TestCase):
             after = get_inference_count(resp.text)
             self.assertEqual(after - before, 4)
 
-    @skipIf(
-        getenv("MODEL", None) not in MODELS["churn"], "post body for churn prediction models",
-    )
+    @skipIf(getenv("MODEL", None) not in MODELS["churn"], "post body for churn prediction models")
     def test_post(self):
         with Session() as s:
             resp = s.get(f"{self.url}/metrics")

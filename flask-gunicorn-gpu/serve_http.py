@@ -101,18 +101,15 @@ def predict():
 def explain(target):
     if not callable(getattr(current_app.model, "explain", None)):
         return "Model does not implement 'explain' method", 501
-    features = current_app.model.pre_process(
-        http_body=request.data, files=request.files
-    )
+    features = current_app.model.pre_process(http_body=request.data, files=request.files)
     return current_app.model.explain(features=features, target=target)[0]
 
 
 @app.route("/metrics", methods=["GET"])
 def get_metrics():
-    """Returns real time feature values recorded by Prometheus
-    """
+    """Returns real time feature values recorded by Prometheus"""
     body, content_type = current_app.monitor.export_http(
-        params=request.args.to_dict(flat=False), headers=request.headers,
+        params=request.args.to_dict(flat=False), headers=request.headers
     )
     return Response(body, content_type=content_type)
 
