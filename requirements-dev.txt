@@ -2,3 +2,5 @@ black
 flake8
 isort
 mypy
+types-Flask
+types-Werkzeug
