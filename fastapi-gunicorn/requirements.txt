@@ -1,5 +1,5 @@
 bdrk==0.8.3
-boxkite==0.0.4
+boxkite==0.0.5
 uvicorn==0.14.0
 gunicorn==20.1.0
 fastapi==0.65.2
