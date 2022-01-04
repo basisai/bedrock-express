@@ -1,5 +1,5 @@
 from os import getenv
-from typing import Optional
+from typing import Any, Optional
 from unittest import TestCase, skipIf
 
 from requests import Session
@@ -8,13 +8,14 @@ from requests.exceptions import HTTPError
 MODELS = {
     "image": ["torchvision", "tf-vision"],
     "language": ["transformers", "tf-transformers"],
-    "churn": ["lightgbm"],
+    "classic": ["lightgbm"],
 }
 
 
-def get_inference_count(body: str, label: Optional[int] = None) -> int:
+def get_inference_count(body: str, label: Optional[Any] = None) -> int:
     if label is not None:
-        start = body.index(f'inference_value_total{{bin="{label}.0"}}')
+        bin = f"{label:.1f}" if isinstance(label, int) else str(label)
+        start = body.index(f'inference_value_total{{bin="{bin}"}}')
     else:
         start = body.index("inference_value_count")
     end = body.index("\n", start)
@@ -66,7 +67,7 @@ class TestModelServer(TestCase):
             resp.raise_for_status()
             before = get_inference_count(resp.text)
 
-            for i in range(4):
+            for _ in range(4):
                 resp = s.post(self.url, json={"query": "Bedrock is amazing!"})
                 resp.raise_for_status()
                 result = resp.json()
@@ -81,24 +82,26 @@ class TestModelServer(TestCase):
             after = get_inference_count(resp.text)
             self.assertEqual(after - before, 4)
 
-    @skipIf(getenv("MODEL", None) not in MODELS["churn"], "post body for churn prediction models")
+    @skipIf(getenv("MODEL", None) not in MODELS["classic"], "post body for classic models")
     def test_post(self):
         with Session() as s:
             resp = s.get(f"{self.url}/metrics")
             resp.raise_for_status()
-            before = get_inference_count(resp.text)
+            before = get_inference_count(resp.text, "setosa")
 
-            for i in range(4):
-                resp = s.post(self.url, json=[[i for i in range(66)]])
+            for _ in range(4):
+                # Updated together with tests/lightgbm/artefact/model.pkl
+                features = list(range(4))
+                resp = s.post(self.url, json=[features])
                 resp.raise_for_status()
                 result = resp.json()
                 self.assertIn("result", result)
                 self.assertIn("prediction_id", result)
                 self.assertEqual(len(result["prediction_id"].split("/")), 3)
-                self.assertEqual(result["result"], [0.9793770021409441])
+                self.assertEqual(result["result"], ["setosa"])
 
             # Verify that metrics sum up correctly
             resp = s.get(f"{self.url}/metrics")
             resp.raise_for_status()
-            after = get_inference_count(resp.text)
+            after = get_inference_count(resp.text, "setosa")
             self.assertEqual(after - before, 4)

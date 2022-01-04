@@ -13,4 +13,4 @@ class TestModelServer(TestCase):
         self.assertIn("result", result)
         self.assertIn("prediction_id", result)
         self.assertEqual(len(result["prediction_id"].split("/")), 3)
-        self.assertEqual(result["result"], [0.9489560209860071])
+        self.assertEqual(result["result"], ["setosa"])
