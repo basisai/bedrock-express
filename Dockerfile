@@ -1,3 +1,4 @@
+# torchvision requires python 3.9 https://pypi.org/project/torchvision/
 ARG BASE=python:3.9
 FROM ${BASE}
 
