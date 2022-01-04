@@ -1,7 +1,7 @@
 version: "3"
 services:
   test:
-    image: python:3.8.5
+    image: python:3.10
     environment:
       HOST: app
       MODEL: ${MODEL:-lightgbm}
@@ -38,7 +38,7 @@ services:
         pip install -r requirements.txt
         # Run unit test
         python -m unittest -v test_serve.py
-        /app/entrypoint.sh
+        exec /app/entrypoint.sh
     volumes:
       - ./${MODEL:-lightgbm}/artefact:/artefact
       - ./${MODEL:-lightgbm}/model-server:/model-server

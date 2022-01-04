@@ -29,11 +29,11 @@ for app in "${targets[@]}"; do
         export MODEL="$model"
 
         # Save exit code for use later
-        docker-compose -f tests/docker-compose.yml -p "$app" up \
+        docker compose -f tests/docker-compose.yml -p "$app" up \
         --build --abort-on-container-exit --always-recreate-deps || exit_code=$?
 
         # Clean up containers
-        docker-compose -f tests/docker-compose.yml -p "$app" down -v --remove-orphans
+        docker compose -f tests/docker-compose.yml -p "$app" down -v --remove-orphans
 
         # Abort early on failure
         if [[ $exit_code -ne 0 ]]; then
