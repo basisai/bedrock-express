@@ -168,12 +168,12 @@ docker build --build-arg APP=fastapi-gunicorn . -t fastapi-gunicorn
 
 To run tests for all server and framework flavours, simply run `./test.sh` from the repo directory.
 
-Individual images can be tested using `docker-compose` from the current directory by setting the `APP` and `MODEL` environment variables. For example,
+Individual images can be tested using `docker compose` from the current directory by setting the `APP` and `MODEL` environment variables. For example,
 
 ```bash
 # To test the flask-gunicorn stack with lightgbm model
-APP=flask-gunicorn MODEL=lightgbm docker-compose -f tests/docker-compose.yml up --build --abort-on-container-exit --always-recreate-deps
+APP=flask-gunicorn MODEL=lightgbm docker compose -f tests/docker-compose.yml up --build --abort-on-container-exit --always-recreate-deps
 
 # To test the fastapi-gunicorn stack with lightgbm model
-APP=fastapi-gunicorn MODEL=lightgbm docker-compose -f tests/docker-compose.yml up --build --abort-on-container-exit --always-recreate-deps
+APP=fastapi-gunicorn MODEL=lightgbm docker compose -f tests/docker-compose.yml up --build --abort-on-container-exit --always-recreate-deps
 ```

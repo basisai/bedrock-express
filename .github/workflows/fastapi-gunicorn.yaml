@@ -22,10 +22,10 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
-      - name: Set up Python 3.8
+      - name: Set up Python 3.10
         uses: actions/setup-python@v2
         with:
-          python-version: "3.8"
+          python-version: "3.10"
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
@@ -37,17 +37,20 @@ jobs:
           DOCKER_BUILDKIT: 1
         run: ./test.sh
   release:
-    runs-on: ubuntu-latest
-    # Only push the image on new tag event
-    if: ${{ startsWith(github.ref, 'refs/tags/') }}
+    runs-on: [self-hosted, docker, integration]
+    env:
+      # list of Docker images to use as base name for tags
+      IMAGE_REPO: quay.io/basisai/express-fastapi
+    outputs:
+      image-tags: ${{ env.IMAGE_REPO }}:${{ steps.docker_meta.outputs.version }}
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
       - name: Docker meta
         id: docker_meta
-        uses: crazy-max/ghaction-docker-meta@v1
+        uses: docker/metadata-action@v3
         with:
-          images: quay.io/basisai/express-fastapi
+          images: ${{ env.IMAGE_REPO }}
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v1
       - name: Set up Docker Buildx
@@ -67,6 +70,19 @@ jobs:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
       - name: Build and push
+        if: ${{ github.event_name == 'pull_request' }}
+        uses: docker/build-push-action@v2
+        with:
+          context: .
+          file: ./Dockerfile
+          # platforms: linux/amd64,linux/arm64,linux/386
+          tags: ${{ steps.docker_meta.outputs.tags }}
+          labels: ${{ steps.docker_meta.outputs.labels }}
+          cache-from: type=local,src=/tmp/.buildx-cache
+          cache-to: type=local,dest=/tmp/.buildx-cache
+          outputs: type=docker,dest=/tmp/express-fastapi-${{ github.sha }}.tar
+      - name: Build and push
+        if: ${{ github.event_name != 'pull_request' }}
         id: docker_build
         uses: docker/build-push-action@v2
         with:
@@ -75,8 +91,65 @@ jobs:
           build-args: |
             APP=fastapi-gunicorn
           # platforms: linux/amd64,linux/arm64,linux/386
-          push: ${{ github.event_name != 'pull_request' }}
+          push: true
           tags: ${{ steps.docker_meta.outputs.tags }}
           labels: ${{ steps.docker_meta.outputs.labels }}
           cache-from: type=local,src=/tmp/.buildx-cache
           cache-to: type=local,dest=/tmp/.buildx-cache
+      - name: Upload artifact
+        if: ${{ github.event_name == 'pull_request' }}
+        uses: actions/upload-artifact@v2
+        with:
+          name: docker-image
+          path: /tmp/express-fastapi-${{ github.sha }}.tar
+          retention-days: 1
+  scan:
+    runs-on: [self-hosted, docker, integration]
+    needs: release
+    strategy:
+      matrix:
+        include:
+          - severity: "MEDIUM,HIGH"
+            exit-code: "0"
+          - severity: "CRITICAL"
+            exit-code: "1"
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v1
+      - name: Download artifact
+        if: ${{ github.event_name == 'pull_request' }}
+        uses: actions/download-artifact@v2
+        with:
+          name: docker-image
+          path: tmp
+      - name: Run Trivy vulnerability scanner for ${{ matrix.severity }} severity
+        if: ${{ github.event_name == 'pull_request' }}
+        uses: aquasecurity/trivy-action@master
+        with:
+          input: tmp/express-fastapi-${{ github.sha }}.tar
+          format: 'table'
+          exit-code: ${{ matrix.exit-code }}
+          ignore-unfixed: true
+          vuln-type: 'os,library'
+          severity: ${{ matrix.severity }}
+        continue-on-error: true
+      - name: Run Trivy vulnerability scanner for ${{ matrix.severity }} severity
+        if: ${{ github.event_name != 'pull_request' }}
+        uses: aquasecurity/trivy-action@master
+        with:
+          image-ref: ${{ needs.release.outputs.image-tags }}
+          format: 'template'
+          template: '@/contrib/sarif.tpl'
+          output: 'trivy-results-${{ matrix.severity }}.sarif'
+          exit-code: ${{ matrix.exit-code }}
+          ignore-unfixed: true
+          vuln-type: 'os,library'
+          severity: ${{ matrix.severity }}
+        continue-on-error: true
+      - name: Upload Trivy scan results to GitHub Security tab
+        if: ${{ github.event_name != 'pull_request' }}
+        uses: github/codeql-action/upload-sarif@v1
+        with:
+          sarif_file: 'trivy-results-${{ matrix.severity }}.sarif'
