@@ -1,4 +1,4 @@
-ARG BASE=python:3.10.1
+ARG BASE=python:3.9
 FROM ${BASE}
 
 WORKDIR /app
