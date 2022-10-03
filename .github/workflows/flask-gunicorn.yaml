@@ -37,7 +37,7 @@ jobs:
           DOCKER_BUILDKIT: 1
         run: ./test.sh
   release:
-    runs-on: [self-hosted, docker, integration]
+    runs-on: [self-hosted]
     env:
       # list of Docker images to use as base name for tags
       IMAGE_REPO: quay.io/basisai/express-flask
@@ -53,8 +53,14 @@ jobs:
           images: ${{ env.IMAGE_REPO }}
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v1
+      - name: Set up Docker Context for Buildx
+        id: buildx-context
+        run: |
+          docker context create builders
       - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v1
+        uses: docker/setup-buildx-action@v2
+        with:
+          endpoint: builders
       - name: Cache Docker layers
         uses: actions/cache@v2
         with:
@@ -103,7 +109,7 @@ jobs:
           path: /tmp/express-flask-${{ github.sha }}.tar
           retention-days: 1
   scan:
-    runs-on: [self-hosted, docker, integration]
+    runs-on: [self-hosted]
     needs: release
     strategy:
       matrix:
@@ -115,8 +121,14 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
+      - name: Set up Docker Context for Buildx
+        id: buildx-context
+        run: |
+          docker context create builders
       - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v1
+        uses: docker/setup-buildx-action@v2
+        with:
+          endpoint: builders
       - name: Download artifact
         if: ${{ github.event_name == 'pull_request' }}
         uses: actions/download-artifact@v2
